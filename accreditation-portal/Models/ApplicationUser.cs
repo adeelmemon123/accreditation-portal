@@ -9,6 +9,12 @@ namespace accreditation_portal.Models
         // Relevant for Provincial TEVTA (scopes read-only access) and Institute/QAB (province of the applicant).
         public string? Province { get; set; }
 
+        // Captured during self-registration (Institute/Assessor forms); not applicable to internally provisioned accounts.
+        public string? Cnic { get; set; }
+        public string? MobileNo { get; set; }
+        public string? Tehsil { get; set; }
+        public string? InstituteName { get; set; }
+
         public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
     }
 }

@@ -1,5 +1,6 @@
 using accreditation_portal.Data;
 using accreditation_portal.Models;
+using accreditation_portal.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,6 +11,10 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
+builder.Services.AddScoped<IApplicationLogService, ApplicationLogService>();
+builder.Services.AddScoped<IApplicationService, ApplicationService>();
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     {

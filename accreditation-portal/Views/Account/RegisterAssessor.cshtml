@@ -1,6 +1,6 @@
-@model RegisterViewModel
+@model AssessorRegisterViewModel
 @{
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = "Assessor Registration";
 }
 
 <div class="flex justify-center">
@@ -10,13 +10,12 @@
             <div class="text-center space-y-2">
                 <div class="mx-auto flex items-center justify-center w-16 h-16 rounded-full bg-primary-50 dark:bg-gray-700">
                     <svg class="w-8 h-8 text-primary-700 dark:text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3l8 4-8 4-8-4 8-4z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 11v5c0 1.66 3.58 3 8 3s8-1.34 8-3v-5" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M20 9v6" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5a4.5 4.5 0 10-9 0 4.5 4.5 0 009 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 20.25a7.5 7.5 0 0115 0" />
                     </svg>
                 </div>
                 <h1 class="text-2xl font-bold leading-tight tracking-tight text-gray-900 md:text-3xl dark:text-white">
-                    QAB Registration
+                    Assessor Registration
                 </h1>
                 <p class="text-sm text-gray-600 dark:text-gray-400">
                     Already have an account?
@@ -24,55 +23,55 @@
                 </p>
             </div>
 
-            <form asp-controller="Account" asp-action="Register" method="post" class="space-y-8">
+            <form asp-controller="Account" asp-action="RegisterAssessor" method="post" class="space-y-6">
                 <div asp-validation-summary="ModelOnly" class="text-red-600 text-sm"></div>
-
-                <input type="hidden" asp-for="AccountType" />
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label asp-for="Province" class="block mb-2 text-sm font-semibold text-gray-900 dark:text-white">
-                            Province
-                        </label>
-                        <input asp-for="Province" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" />
-                        <span asp-validation-for="Province" class="text-red-600 text-sm"></span>
-                    </div>
-                </div>
-
-                <hr class="border-gray-200 dark:border-gray-700" />
-
-                <div>
-                    <h2 class="text-base font-semibold text-gray-900 dark:text-white">Focal Person Details</h2>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">Please provide the information of the focal person for this account.</p>
-                </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label asp-for="FullName" class="block mb-2 text-sm font-semibold text-gray-900 dark:text-white">
-                            Full Name <span class="text-red-600">*</span>
+                            Full Name <span class="font-normal text-gray-400">(As per CNIC)</span> <span class="text-red-600">*</span>
                         </label>
                         <input asp-for="FullName" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" />
                         <span asp-validation-for="FullName" class="text-red-600 text-sm"></span>
                     </div>
 
                     <div>
-                        <label asp-for="Email" class="block mb-2 text-sm font-semibold text-gray-900 dark:text-white">
-                            Email <span class="text-red-600">*</span>
+                        <label asp-for="Cnic" class="block mb-2 text-sm font-semibold text-gray-900 dark:text-white">
+                            CNIC/POR No. <span class="font-normal text-gray-400">(13 characters without any dashes)</span> <span class="text-red-600">*</span>
                         </label>
-                        <input asp-for="Email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" />
-                        <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">Please provide a valid email address for important notifications and correspondence.</p>
-                        <span asp-validation-for="Email" class="text-red-600 text-sm"></span>
+                        <input asp-for="Cnic" maxlength="13" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" />
+                        <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">Pakistan Nationals: 13-digit CNIC. Afghan Nationals: 13-character POR No.</p>
+                        <span asp-validation-for="Cnic" class="text-red-600 text-sm"></span>
                     </div>
                 </div>
 
-                <hr class="border-gray-200 dark:border-gray-700" />
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label asp-for="Email" class="block mb-2 text-sm font-semibold text-gray-900 dark:text-white">
+                            Email
+                        </label>
+                        <input asp-for="Email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" />
+                        <span asp-validation-for="Email" class="text-red-600 text-sm"></span>
+                    </div>
 
-                <div>
-                    <h2 class="text-base font-semibold text-gray-900 dark:text-white">Account Security</h2>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">Choose a strong password to protect your account.</p>
+                    <div>
+                        <label asp-for="MobileNo" class="block mb-2 text-sm font-semibold text-gray-900 dark:text-white">
+                            Mobile No. <span class="text-red-600">*</span>
+                        </label>
+                        <input asp-for="MobileNo" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" />
+                        <span asp-validation-for="MobileNo" class="text-red-600 text-sm"></span>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label asp-for="Username" class="block mb-2 text-sm font-semibold text-gray-900 dark:text-white">
+                            User Name <span class="text-red-600">*</span>
+                        </label>
+                        <input asp-for="Username" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" />
+                        <span asp-validation-for="Username" class="text-red-600 text-sm"></span>
+                    </div>
+
                     <div>
                         <label asp-for="Password" class="block mb-2 text-sm font-semibold text-gray-900 dark:text-white">
                             Password <span class="text-red-600">*</span>
@@ -80,7 +79,9 @@
                         <input asp-for="Password" type="password" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" />
                         <span asp-validation-for="Password" class="text-red-600 text-sm"></span>
                     </div>
+                </div>
 
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label asp-for="ConfirmPassword" class="block mb-2 text-sm font-semibold text-gray-900 dark:text-white">
                             Confirm Password <span class="text-red-600">*</span>
@@ -91,12 +92,8 @@
                 </div>
 
                 <button type="submit" class="w-full text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-3 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
-                    Register
+                    Create Account
                 </button>
-
-                <p class="text-xs text-center text-gray-400 dark:text-gray-500">
-                    This form is for Qualification Awarding Bodies (QABs). Institutes and Assessors have their own registration forms.
-                </p>
             </form>
         </div>
     </div>

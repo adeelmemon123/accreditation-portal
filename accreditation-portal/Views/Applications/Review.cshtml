@@ -1,0 +1,137 @@
+@model Application
+@{
+    ViewData["Title"] = "Review & Submit";
+    var isDraft = Model.Status == ApplicationStatus.Draft;
+    var documentLabels = new Dictionary<ApplicationDocumentType, string>
+    {
+        [ApplicationDocumentType.RegistrationCertificate] = "Registration Certificate",
+        [ApplicationDocumentType.AffiliationCertificate] = "Affiliation Certificate",
+        [ApplicationDocumentType.FeeChallan] = "Fee Challan"
+    };
+}
+
+<div class="max-w-3xl mx-auto">
+    @if (isDraft)
+    {
+        @await Html.PartialAsync("_WizardSteps", 3)
+    }
+
+    <div class="bg-white rounded-lg shadow dark:border sm:p-8 p-6 dark:bg-gray-800 dark:border-gray-700 space-y-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-xl font-bold text-gray-900 dark:text-white mb-1">Application #@Model.Id</h1>
+                <p class="text-sm text-gray-500 dark:text-gray-400">@Model.ApplicationType Application</p>
+            </div>
+            @await Html.PartialAsync("_StatusBadge", Model.Status)
+        </div>
+
+        @if (TempData["Error"] is string error)
+        {
+            <div class="p-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400">@error</div>
+        }
+
+        <div>
+            <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-3">Account Details</h2>
+            <dl class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                @if (Model.ApplicationType == ApplicationType.Institute)
+                {
+                    <div><dt class="text-gray-400 text-xs uppercase">Institute Name</dt><dd class="text-gray-900 dark:text-white">@(Model.ApplicantUser.InstituteName ?? "-")</dd></div>
+                    <div><dt class="text-gray-400 text-xs uppercase">CNIC</dt><dd class="text-gray-900 dark:text-white">@(Model.ApplicantUser.Cnic ?? "-")</dd></div>
+                    <div><dt class="text-gray-400 text-xs uppercase">Mobile No.</dt><dd class="text-gray-900 dark:text-white">@(Model.ApplicantUser.MobileNo ?? "-")</dd></div>
+                    <div><dt class="text-gray-400 text-xs uppercase">Tehsil</dt><dd class="text-gray-900 dark:text-white">@(Model.ApplicantUser.Tehsil ?? "-")</dd></div>
+                }
+                else
+                {
+                    <div><dt class="text-gray-400 text-xs uppercase">Full Name</dt><dd class="text-gray-900 dark:text-white">@Model.ApplicantUser.FullName</dd></div>
+                    <div><dt class="text-gray-400 text-xs uppercase">Email</dt><dd class="text-gray-900 dark:text-white">@(Model.ApplicantUser.Email ?? "-")</dd></div>
+                }
+            </dl>
+        </div>
+
+        <hr class="border-gray-200 dark:border-gray-700" />
+
+        <div>
+            <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-3">Profile Details</h2>
+            @if (Model.ApplicationType == ApplicationType.Institute && Model.InstituteProfile is { } instituteProfile)
+            {
+                <dl class="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                    <div><dt class="text-gray-400 text-xs uppercase">Province</dt><dd class="text-gray-900 dark:text-white">@instituteProfile.Province</dd></div>
+                    <div><dt class="text-gray-400 text-xs uppercase">District</dt><dd class="text-gray-900 dark:text-white">@instituteProfile.District</dd></div>
+                    <div><dt class="text-gray-400 text-xs uppercase">Address</dt><dd class="text-gray-900 dark:text-white">@instituteProfile.Address</dd></div>
+                    <div><dt class="text-gray-400 text-xs uppercase">Contact Person</dt><dd class="text-gray-900 dark:text-white">@instituteProfile.ContactPersonName</dd></div>
+                    <div><dt class="text-gray-400 text-xs uppercase">Contact Phone</dt><dd class="text-gray-900 dark:text-white">@instituteProfile.ContactPhone</dd></div>
+                    <div><dt class="text-gray-400 text-xs uppercase">Contact Email</dt><dd class="text-gray-900 dark:text-white">@instituteProfile.ContactEmail</dd></div>
+                    <div><dt class="text-gray-400 text-xs uppercase">Registration Number</dt><dd class="text-gray-900 dark:text-white">@instituteProfile.RegistrationNumber</dd></div>
+                    <div><dt class="text-gray-400 text-xs uppercase">Affiliation Body</dt><dd class="text-gray-900 dark:text-white">@instituteProfile.AffiliationBody</dd></div>
+                    <div><dt class="text-gray-400 text-xs uppercase">Established Year</dt><dd class="text-gray-900 dark:text-white">@instituteProfile.EstablishedYear</dd></div>
+                </dl>
+            }
+            else if (Model.ApplicationType == ApplicationType.QAB && Model.QABProfile is { } qabProfile)
+            {
+                <dl class="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                    <div><dt class="text-gray-400 text-xs uppercase">Organization Name</dt><dd class="text-gray-900 dark:text-white">@qabProfile.OrganizationName</dd></div>
+                    <div><dt class="text-gray-400 text-xs uppercase">Province</dt><dd class="text-gray-900 dark:text-white">@qabProfile.Province</dd></div>
+                    <div><dt class="text-gray-400 text-xs uppercase">Address</dt><dd class="text-gray-900 dark:text-white">@qabProfile.Address</dd></div>
+                    <div><dt class="text-gray-400 text-xs uppercase">Contact Person</dt><dd class="text-gray-900 dark:text-white">@qabProfile.ContactPersonName</dd></div>
+                    <div><dt class="text-gray-400 text-xs uppercase">Contact Phone</dt><dd class="text-gray-900 dark:text-white">@qabProfile.ContactPhone</dd></div>
+                    <div><dt class="text-gray-400 text-xs uppercase">Contact Email</dt><dd class="text-gray-900 dark:text-white">@qabProfile.ContactEmail</dd></div>
+                    <div><dt class="text-gray-400 text-xs uppercase">Registration Number</dt><dd class="text-gray-900 dark:text-white">@qabProfile.RegistrationNumber</dd></div>
+                    <div><dt class="text-gray-400 text-xs uppercase">Scope of Awarding</dt><dd class="text-gray-900 dark:text-white">@qabProfile.ScopeOfAwarding</dd></div>
+                    <div><dt class="text-gray-400 text-xs uppercase">Accrediting Body Reference</dt><dd class="text-gray-900 dark:text-white">@(qabProfile.AccreditingBodyReference ?? "-")</dd></div>
+                </dl>
+            }
+            else
+            {
+                <p class="text-sm text-gray-500 dark:text-gray-400">Profile details have not been completed yet.</p>
+            }
+        </div>
+
+        <hr class="border-gray-200 dark:border-gray-700" />
+
+        <div>
+            <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-3">Documents</h2>
+            <ul class="text-sm space-y-2">
+                @foreach (var label in documentLabels)
+                {
+                    var doc = Model.Documents.FirstOrDefault(d => d.DocumentType == label.Key);
+                    <li class="flex items-center justify-between">
+                        <span class="text-gray-700 dark:text-gray-300">@label.Value</span>
+                        @if (doc is not null)
+                        {
+                            <a asp-controller="Applications" asp-action="Document" asp-route-documentId="@doc.Id" target="_blank" class="text-primary-600 dark:text-primary-500 hover:underline">@doc.FileName</a>
+                        }
+                        else
+                        {
+                            <span class="text-red-600">Missing</span>
+                        }
+                    </li>
+                }
+            </ul>
+        </div>
+
+        @if (isDraft)
+        {
+            <div class="flex justify-between pt-2">
+                <a asp-controller="Applications" asp-action="Documents" asp-route-id="@Model.Id" class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:underline">&larr; Back to Documents</a>
+                <form asp-controller="Applications" asp-action="Submit" asp-route-id="@Model.Id" method="post" onsubmit="return confirm('Submit this application? You will not be able to make further edits.');">
+                    <button type="submit" class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-6 py-2.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
+                        Submit Application
+                    </button>
+                </form>
+            </div>
+        }
+        else
+        {
+            <div class="pt-2">
+                @if (User.IsInRole(Roles.Admin))
+                {
+                    <a asp-controller="Admin" asp-action="Applications" class="text-sm font-medium text-primary-600 dark:text-primary-500 hover:underline">&larr; Back to All Applications</a>
+                }
+                else
+                {
+                    <a asp-controller="Applications" asp-action="Index" class="text-sm font-medium text-primary-600 dark:text-primary-500 hover:underline">&larr; Back to My Applications</a>
+                }
+            </div>
+        }
+    </div>
+</div>

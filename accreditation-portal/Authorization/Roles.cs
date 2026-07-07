@@ -24,14 +24,14 @@ namespace accreditation_portal.Authorization
         public static readonly string[] SelfRegisterable =
         {
             Institute,
-            QAB
+            QAB,
+            SectorExpert
         };
 
         public static readonly string[] InternallyProvisioned =
         {
             Admin,
             ProvincialTEVTA,
-            SectorExpert,
             TAQECChairperson,
             NACChairman
         };

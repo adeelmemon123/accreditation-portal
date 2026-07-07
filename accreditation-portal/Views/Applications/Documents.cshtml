@@ -1,0 +1,75 @@
+@model Application
+@{
+    ViewData["Title"] = "Application Documents";
+    var documentTypes = new[]
+    {
+        (Type: ApplicationDocumentType.RegistrationCertificate, Label: "Registration Certificate"),
+        (Type: ApplicationDocumentType.AffiliationCertificate, Label: "Affiliation Certificate"),
+        (Type: ApplicationDocumentType.FeeChallan, Label: "Fee Challan")
+    };
+}
+
+<div class="max-w-3xl mx-auto">
+    @await Html.PartialAsync("_WizardSteps", 2)
+
+    <div class="bg-white rounded-lg shadow dark:border sm:p-8 p-6 dark:bg-gray-800 dark:border-gray-700 space-y-6">
+        <div>
+            <h1 class="text-xl font-bold text-gray-900 dark:text-white mb-1">Upload Documents</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400">All three documents are required. Allowed formats: PDF, JPG, PNG. Max size: 5 MB per file.</p>
+        </div>
+
+        @if (TempData["Error"] is string error)
+        {
+            <div class="p-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400">@error</div>
+        }
+
+        <div class="space-y-4">
+            @foreach (var doc in documentTypes)
+            {
+                var uploaded = Model.Documents.FirstOrDefault(d => d.DocumentType == doc.Type);
+                <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                    <div class="flex items-center justify-between flex-wrap gap-3">
+                        <div>
+                            <p class="text-sm font-semibold text-gray-900 dark:text-white">@doc.Label <span class="text-red-600">*</span></p>
+                            @if (uploaded is not null)
+                            {
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                    @uploaded.FileName &middot; @((uploaded.FileSizeBytes / 1024.0).ToString("N0")) KB &middot; uploaded @uploaded.UploadedAt.ToLocalTime().ToString("dd MMM yyyy HH:mm")
+                                </p>
+                            }
+                            else
+                            {
+                                <p class="text-xs text-gray-400 mt-1">Not uploaded yet.</p>
+                            }
+                        </div>
+                        <div class="flex items-center gap-2">
+                            @if (uploaded is not null)
+                            {
+                                <a asp-controller="Applications" asp-action="Document" asp-route-documentId="@uploaded.Id" target="_blank" class="text-sm font-medium text-primary-600 dark:text-primary-500 hover:underline">View</a>
+                                <form asp-controller="Applications" asp-action="DeleteDocument" asp-route-id="@Model.Id" method="post" onsubmit="return confirm('Remove this document?');">
+                                    <input type="hidden" name="documentType" value="@doc.Type" />
+                                    <button type="submit" class="text-sm font-medium text-red-600 hover:underline">Remove</button>
+                                </form>
+                            }
+                        </div>
+                    </div>
+                    <form asp-controller="Applications" asp-action="UploadDocument" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data" class="mt-3 flex items-center gap-3">
+                        <input type="hidden" name="documentType" value="@doc.Type" />
+                        <input type="file" name="file" accept=".pdf,.jpg,.jpeg,.png" required
+                               class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" />
+                        <button type="submit" class="shrink-0 text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-4 py-2 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
+                            @(uploaded is not null ? "Replace" : "Upload")
+                        </button>
+                    </form>
+                </div>
+            }
+        </div>
+
+        <div class="flex justify-between pt-2">
+            <a asp-controller="Applications" asp-action="Profile" asp-route-id="@Model.Id" class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:underline">&larr; Back to Profile</a>
+            <a asp-controller="Applications" asp-action="Review" asp-route-id="@Model.Id" class="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-6 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
+                Continue to Review
+            </a>
+        </div>
+    </div>
+</div>

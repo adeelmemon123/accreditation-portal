@@ -1,0 +1,14 @@
+@using accreditation_portal.Models.Applications
+@model ApplicationStatus
+@{
+    var (label, classes) = Model switch
+    {
+        ApplicationStatus.Draft => ("Draft", "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300"),
+        ApplicationStatus.Submitted => ("Submitted", "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300"),
+        ApplicationStatus.UnderDeskReview => ("Under Desk Review", "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"),
+        ApplicationStatus.WorthyForVisit => ("Worthy for Visit", "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300"),
+        ApplicationStatus.Deficient => ("Deficient", "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"),
+        _ => (Model.ToString(), "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300")
+    };
+}
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium @classes">@label</span>

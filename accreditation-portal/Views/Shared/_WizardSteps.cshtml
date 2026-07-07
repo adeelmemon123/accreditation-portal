@@ -1,0 +1,21 @@
+@model int
+@{
+    var steps = new[] { "Profile Details", "Documents", "Review & Submit" };
+}
+<ol class="flex items-center w-full mb-8 text-sm font-medium text-center text-gray-500 dark:text-gray-400 sm:text-base">
+    @for (var i = 0; i < steps.Length; i++)
+    {
+        var stepNumber = i + 1;
+        var isCurrent = stepNumber == Model;
+        var isDone = stepNumber < Model;
+        var connectorClasses = i < steps.Length - 1 ? "after:content-[''] after:w-full after:h-1 after:border-b after:border-gray-200 after:border-1 after:hidden sm:after:inline-block after:mx-4 xl:after:mx-6 dark:after:border-gray-700" : "";
+        <li class="flex md:w-full items-center @(isCurrent ? "text-primary-700 dark:text-primary-500" : isDone ? "text-primary-600 dark:text-primary-500" : "") @connectorClasses">
+            <span class="flex items-center after:content-['/'] sm:after:hidden after:mx-2 after:text-gray-200 dark:after:text-gray-500">
+                <span class="flex items-center justify-center w-5 h-5 me-2 text-xs border rounded-full shrink-0 @(isCurrent || isDone ? "border-primary-600 dark:border-primary-500" : "border-gray-500")">
+                    @stepNumber
+                </span>
+                @steps[i]
+            </span>
+        </li>
+    }
+</ol>

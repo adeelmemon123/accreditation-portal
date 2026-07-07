@@ -1,6 +1,8 @@
 using accreditation_portal.Authorization;
 using accreditation_portal.Models;
 using accreditation_portal.Models.AdminViewModels;
+using accreditation_portal.Models.Applications;
+using accreditation_portal.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -11,10 +13,20 @@ namespace accreditation_portal.Controllers
     public class AdminController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IApplicationService _applicationService;
 
-        public AdminController(UserManager<ApplicationUser> userManager)
+        public AdminController(UserManager<ApplicationUser> userManager, IApplicationService applicationService)
         {
             _userManager = userManager;
+            _applicationService = applicationService;
+        }
+
+        public async Task<IActionResult> Applications(ApplicationType? type, string? province)
+        {
+            var applications = await _applicationService.GetSubmittedApplicationsAsync(type, province);
+            ViewBag.SelectedType = type;
+            ViewBag.SelectedProvince = province;
+            return View(applications);
         }
 
         public async Task<IActionResult> Users()

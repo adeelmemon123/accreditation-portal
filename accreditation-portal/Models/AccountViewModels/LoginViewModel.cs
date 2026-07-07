@@ -5,8 +5,8 @@ namespace accreditation_portal.Models.AccountViewModels
     public class LoginViewModel
     {
         [Required]
-        [EmailAddress]
-        public string Email { get; set; } = string.Empty;
+        [Display(Name = "Email or Username")]
+        public string Identifier { get; set; } = string.Empty;
 
         [Required]
         [DataType(DataType.Password)]

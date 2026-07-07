@@ -1,0 +1,39 @@
+@using accreditation_portal.Models.Applications
+@{
+    ViewData["Title"] = "Start Application";
+    var availableTypes = (List<ApplicationType>)ViewBag.AvailableTypes;
+}
+
+<div class="flex justify-center">
+    <div class="w-full max-w-xl bg-white rounded-lg shadow dark:border sm:p-8 p-6 dark:bg-gray-800 dark:border-gray-700 text-center">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Start Your Application</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-8">
+            Choose the type of accreditation application you'd like to begin. You can save your progress as a
+            draft and come back to finish it later.
+        </p>
+
+        @if (TempData["Error"] is string error)
+        {
+            <div class="mb-4 p-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400">@error</div>
+        }
+
+        @if (!availableTypes.Any())
+        {
+            <p class="text-sm text-gray-500 dark:text-gray-400">Your account role isn't eligible to start an application.</p>
+        }
+        else
+        {
+            <div class="grid grid-cols-1 @(availableTypes.Count > 1 ? "sm:grid-cols-2" : "") gap-4">
+                @foreach (var type in availableTypes)
+                {
+                    <form asp-controller="Applications" asp-action="Start" method="post">
+                        <input type="hidden" name="type" value="@type" />
+                        <button type="submit" class="w-full text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-3 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
+                            Register as @(type == ApplicationType.QAB ? "QAB" : "Institute")
+                        </button>
+                    </form>
+                }
+            </div>
+        }
+    </div>
+</div>
