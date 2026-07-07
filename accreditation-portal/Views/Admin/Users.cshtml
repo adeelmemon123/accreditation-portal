@@ -1,0 +1,40 @@
+@model List<UserListItemViewModel>
+@{
+    ViewData["Title"] = "User Management";
+}
+
+<div class="flex items-center justify-between mb-4">
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">User Management</h1>
+    <a asp-controller="Admin" asp-action="CreateUser"
+       class="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
+        Create Internal User
+    </a>
+</div>
+
+<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+    <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+            <tr>
+                <th scope="col" class="px-6 py-3">Full Name</th>
+                <th scope="col" class="px-6 py-3">Email</th>
+                <th scope="col" class="px-6 py-3">Province</th>
+                <th scope="col" class="px-6 py-3">Roles</th>
+                <th scope="col" class="px-6 py-3"><span class="sr-only">Actions</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model)
+            {
+                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">@user.FullName</td>
+                    <td class="px-6 py-4">@user.Email</td>
+                    <td class="px-6 py-4">@user.Province</td>
+                    <td class="px-6 py-4">@string.Join(", ", user.Roles)</td>
+                    <td class="px-6 py-4 text-right">
+                        <a asp-controller="Admin" asp-action="EditRoles" asp-route-id="@user.Id" class="font-medium text-primary-600 dark:text-primary-500 hover:underline">Edit Roles</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
