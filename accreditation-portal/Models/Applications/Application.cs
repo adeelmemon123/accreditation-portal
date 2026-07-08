@@ -18,5 +18,6 @@ namespace accreditation_portal.Models.Applications
         public QABProfile? QABProfile { get; set; }
         public ICollection<ApplicationDocument> Documents { get; set; } = new List<ApplicationDocument>();
         public ICollection<ApplicationLog> Logs { get; set; } = new List<ApplicationLog>();
+        public ICollection<SelfAssessmentResponse> SelfAssessmentResponses { get; set; } = new List<SelfAssessmentResponse>();
     }
 }

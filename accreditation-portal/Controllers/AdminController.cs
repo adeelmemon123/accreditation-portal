@@ -14,11 +14,21 @@ namespace accreditation_portal.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IApplicationService _applicationService;
+        private readonly ISelfAssessmentService _selfAssessmentService;
 
-        public AdminController(UserManager<ApplicationUser> userManager, IApplicationService applicationService)
+        public AdminController(UserManager<ApplicationUser> userManager, IApplicationService applicationService, ISelfAssessmentService selfAssessmentService)
         {
             _userManager = userManager;
             _applicationService = applicationService;
+            _selfAssessmentService = selfAssessmentService;
+        }
+
+        // Read-only listing so Admin can confirm what's configured - full template CRUD is a follow-up
+        // (see README); this seeder-backed data just needs to be visible for now.
+        public async Task<IActionResult> ChecklistTemplates()
+        {
+            var templates = await _selfAssessmentService.GetAllTemplatesAsync();
+            return View(templates);
         }
 
         public async Task<IActionResult> Applications(ApplicationType? type, string? province)

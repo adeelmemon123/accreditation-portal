@@ -17,6 +17,11 @@ namespace accreditation_portal.Data
         public DbSet<QABProfile> QABProfiles => Set<QABProfile>();
         public DbSet<ApplicationDocument> ApplicationDocuments => Set<ApplicationDocument>();
         public DbSet<ApplicationLog> ApplicationLogs => Set<ApplicationLog>();
+        public DbSet<ChecklistTemplate> ChecklistTemplates => Set<ChecklistTemplate>();
+        public DbSet<ChecklistSection> ChecklistSections => Set<ChecklistSection>();
+        public DbSet<ChecklistItem> ChecklistItems => Set<ChecklistItem>();
+        public DbSet<SelfAssessmentResponse> SelfAssessmentResponses => Set<SelfAssessmentResponse>();
+        public DbSet<SelfAssessmentEvidence> SelfAssessmentEvidence => Set<SelfAssessmentEvidence>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

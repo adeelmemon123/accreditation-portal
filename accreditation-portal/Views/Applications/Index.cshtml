@@ -50,7 +50,7 @@ else
                         <td class="px-6 py-4">@await Html.PartialAsync("_StatusBadge", application.Status)</td>
                         <td class="px-6 py-4">@application.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</td>
                         <td class="px-6 py-4">@(application.SubmittedAt?.ToLocalTime().ToString("dd MMM yyyy") ?? "-")</td>
-                        <td class="px-6 py-4 text-right">
+                        <td class="px-6 py-4 text-right space-x-3">
                             @if (application.Status == ApplicationStatus.Draft)
                             {
                                 <a asp-controller="Applications" asp-action="Profile" asp-route-id="@application.Id" class="font-medium text-primary-600 dark:text-primary-500 hover:underline">Continue</a>
@@ -58,6 +58,15 @@ else
                             else
                             {
                                 <a asp-controller="Applications" asp-action="Review" asp-route-id="@application.Id" class="font-medium text-primary-600 dark:text-primary-500 hover:underline">View</a>
+
+                                @if (application.Status == ApplicationStatus.Submitted || application.Status == ApplicationStatus.SelfAssessmentInProgress)
+                                {
+                                    <a asp-controller="SelfAssessment" asp-action="Index" asp-route-id="@application.Id" class="font-medium text-primary-600 dark:text-primary-500 hover:underline">Self-Assessment</a>
+                                }
+                                else if (application.Status == ApplicationStatus.SelfAssessmentSubmitted)
+                                {
+                                    <a asp-controller="SelfAssessment" asp-action="Review" asp-route-id="@application.Id" class="font-medium text-primary-600 dark:text-primary-500 hover:underline">Self-Assessment</a>
+                                }
                             }
                         </td>
                     </tr>

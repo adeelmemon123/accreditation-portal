@@ -12,6 +12,8 @@ namespace accreditation_portal.Models.Applications
     {
         Draft,
         Submitted,
+        SelfAssessmentInProgress,
+        SelfAssessmentSubmitted,
         UnderDeskReview,
         WorthyForVisit,
         Deficient
@@ -32,6 +34,11 @@ namespace accreditation_portal.Models.Applications
         DocumentUploaded,
         DocumentReplaced,
         DocumentDeleted,
-        Submitted
+        Submitted,
+        SelfAssessmentStarted,
+        ChecklistItemScored,
+        EvidenceUploaded,
+        EvidenceDeleted,
+        SelfAssessmentSubmitted
     }
 }

@@ -9,7 +9,8 @@ namespace accreditation_portal.Data.Configurations
         public void Configure(EntityTypeBuilder<Application> builder)
         {
             builder.Property(a => a.ApplicationType).HasConversion<string>().HasMaxLength(20);
-            builder.Property(a => a.Status).HasConversion<string>().HasMaxLength(20);
+            // 40, not 20 - "SelfAssessmentInProgress"/"SelfAssessmentSubmitted" are 23-24 chars.
+            builder.Property(a => a.Status).HasConversion<string>().HasMaxLength(40);
 
             // Restrict (not Cascade) because ApplicationLog also FKs to AspNetUsers - letting both cascade
             // from the user would create multiple cascade paths, which SQL Server rejects.

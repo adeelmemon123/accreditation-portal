@@ -1,0 +1,5 @@
+@{
+    // Admin reaches these views read-only from /Admin/Applications and should stay in the admin sidebar;
+    // Institute/QAB own the workflow and get the applicant sidebar.
+    Layout = User.IsInRole(Roles.Admin) ? "_AdminLayout" : "_ApplicantLayout";
+}
