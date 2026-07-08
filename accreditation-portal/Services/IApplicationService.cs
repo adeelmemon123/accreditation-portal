@@ -15,6 +15,10 @@ namespace accreditation_portal.Services
 
         Task<List<Application>> GetSubmittedApplicationsAsync(ApplicationType? type, string? province);
 
+        Task<Dictionary<ApplicationStatus, int>> GetStatusCountsAsync();
+
+        Task<Dictionary<ApplicationType, int>> GetTypeCountsAsync();
+
         Task<Application> StartApplicationAsync(string userId, ApplicationType type, string? ipAddress);
 
         Task UpdateInstituteProfileAsync(int applicationId, string userId, InstituteProfileViewModel model, string? ipAddress);

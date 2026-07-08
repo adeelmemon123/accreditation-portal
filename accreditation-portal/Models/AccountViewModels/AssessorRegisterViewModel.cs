@@ -22,6 +22,13 @@ namespace accreditation_portal.Models.AccountViewModels
         public string MobileNo { get; set; } = string.Empty;
 
         [Required]
+        public string Province { get; set; } = string.Empty;
+
+        [Required]
+        [Display(Name = "Sector")]
+        public string Sector { get; set; } = string.Empty;
+
+        [Required]
         [StringLength(20, MinimumLength = 4, ErrorMessage = "Username must be between 4 and 20 characters.")]
         [RegularExpression(@"^[a-zA-Z0-9]+$", ErrorMessage = "Username can only contain letters and numbers.")]
         public string Username { get; set; } = string.Empty;

@@ -14,5 +14,8 @@ namespace accreditation_portal.Models.Applications
         public string RegistrationNumber { get; set; } = string.Empty;
         public string ScopeOfAwarding { get; set; } = string.Empty;
         public string? AccreditingBodyReference { get; set; }
+
+        // Used to match assessors to this application during On-Site Assessment assignment.
+        public string? Sector { get; set; }
     }
 }

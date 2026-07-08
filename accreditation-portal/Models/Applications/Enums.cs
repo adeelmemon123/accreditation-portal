@@ -6,8 +6,8 @@ namespace accreditation_portal.Models.Applications
         QAB
     }
 
-    // WorthyForVisit and Deficient are terminal for this module - what happens after WorthyForVisit
-    // (On-Site Assessment/Assessor) is a later module, not built here.
+    // Deficient is terminal. AssessmentSubmitted now leads into TA-QEC review; what happens after
+    // TaQecGraded (NAC approval/certificate) is a later module, not built here.
     public enum ApplicationStatus
     {
         Draft,
@@ -16,7 +16,12 @@ namespace accreditation_portal.Models.Applications
         SelfAssessmentSubmitted,
         UnderDeskReview,
         WorthyForVisit,
-        Deficient
+        Deficient,
+        AssessmentAssigned,
+        AssessmentInProgress,
+        AssessmentSubmitted,
+        UnderTaQecReview,
+        TaQecGraded
     }
 
     public enum ApplicationDocumentType
@@ -33,7 +38,29 @@ namespace accreditation_portal.Models.Applications
         Deficient
     }
 
-    // Extensible: later modules (Assessor, TA-QEC, NAC) add their own action values here.
+    // NotStarted: team assigned, window not yet opened. WindowClosed is set by the background monitor
+    // when WindowEndAt lapses without a submission - it is a dashboard/visibility flag only; the actual
+    // write-blocking enforcement always re-checks DateTime.UtcNow against WindowEndAt directly (see
+    // AssessmentService), never relies on this Status field, so it can't go stale mid-request.
+    public enum AssessmentAssignmentStatus
+    {
+        NotStarted,
+        WindowOpen,
+        WindowClosed,
+        FindingsSubmitted
+    }
+
+    public enum TaQecGrade
+    {
+        Pending,
+        A,
+        B,
+        C,
+        D,
+        NotRejected
+    }
+
+    // Extensible: later modules (NAC) add their own action values here.
     public enum ApplicationLogAction
     {
         Created,
@@ -51,6 +78,16 @@ namespace accreditation_portal.Models.Applications
         DeskReviewStarted,
         ItemCommented,
         ItemFlagged,
-        DeskReviewDecisionMade
+        DeskReviewDecisionMade,
+        AssessmentAssigned,
+        AssessmentWindowOpened,
+        FindingRecorded,
+        AssessmentEvidenceUploaded,
+        AssessmentEvidenceDeleted,
+        AssessmentWindowClosed,
+        AssessmentSubmitted,
+        TaQecReviewStarted,
+        TaQecDiscussionNoteAdded,
+        TaQecGradeLocked
     }
 }

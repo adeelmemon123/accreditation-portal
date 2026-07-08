@@ -39,5 +39,9 @@ namespace accreditation_portal.Models.ApplicationViewModels
         [Range(1900, 2100)]
         [Display(Name = "Established Year")]
         public int EstablishedYear { get; set; }
+
+        [Required]
+        [Display(Name = "Sector")]
+        public string Sector { get; set; } = string.Empty;
     }
 }

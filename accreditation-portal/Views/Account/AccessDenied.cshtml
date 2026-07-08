@@ -1,5 +1,8 @@
 @{
     ViewData["Title"] = "Access Denied";
+    // Shown to already-logged-in users lacking a permission - keep the normal navbar for navigation,
+    // unlike the pre-login Account views (Login/Register*) which use the navbar-free _AuthLayout.
+    Layout = "_Layout";
 }
 
 <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Access Denied</h1>

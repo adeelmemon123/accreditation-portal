@@ -20,5 +20,7 @@ namespace accreditation_portal.Models.Applications
         public ICollection<ApplicationLog> Logs { get; set; } = new List<ApplicationLog>();
         public ICollection<SelfAssessmentResponse> SelfAssessmentResponses { get; set; } = new List<SelfAssessmentResponse>();
         public DeskReview? DeskReview { get; set; }
+        public AssessmentAssignment? AssessmentAssignment { get; set; }
+        public TaQecReview? TaQecReview { get; set; }
     }
 }

@@ -97,6 +97,13 @@
                 </div>
             </div>
 
+            <div>
+                <label asp-for="Sector" class="block mb-2 text-sm font-semibold text-gray-900 dark:text-white">Sector <span class="text-red-600">*</span> <span class="font-normal text-gray-400">(e.g. IT, Construction, Textile)</span></label>
+                <input asp-for="Sector" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" />
+                <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">Used to match on-site assessors during the assessment stage.</p>
+                <span asp-validation-for="Sector" class="text-red-600 text-sm"></span>
+            </div>
+
             <div class="flex justify-end">
                 <button type="submit" class="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-6 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
                     Save &amp; Continue to Documents

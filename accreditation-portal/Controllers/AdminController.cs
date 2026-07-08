@@ -15,12 +15,52 @@ namespace accreditation_portal.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IApplicationService _applicationService;
         private readonly ISelfAssessmentService _selfAssessmentService;
+        private readonly IDeskReviewService _deskReviewService;
+        private readonly IAssessmentService _assessmentService;
+        private readonly ITaQecService _taQecService;
 
-        public AdminController(UserManager<ApplicationUser> userManager, IApplicationService applicationService, ISelfAssessmentService selfAssessmentService)
+        public AdminController(
+            UserManager<ApplicationUser> userManager,
+            IApplicationService applicationService,
+            ISelfAssessmentService selfAssessmentService,
+            IDeskReviewService deskReviewService,
+            IAssessmentService assessmentService,
+            ITaQecService taQecService)
         {
             _userManager = userManager;
             _applicationService = applicationService;
             _selfAssessmentService = selfAssessmentService;
+            _deskReviewService = deskReviewService;
+            _assessmentService = assessmentService;
+            _taQecService = taQecService;
+        }
+
+        public async Task<IActionResult> Dashboard()
+        {
+            var statusCounts = await _applicationService.GetStatusCountsAsync();
+            var typeCounts = await _applicationService.GetTypeCountsAsync();
+
+            var assessmentActive = await _assessmentService.GetActiveAssignmentsAsync();
+
+            var model = new AdminDashboardViewModel
+            {
+                TotalApplications = statusCounts.Values.Sum(),
+                TotalInstitute = typeCounts.GetValueOrDefault(ApplicationType.Institute),
+                TotalQAB = typeCounts.GetValueOrDefault(ApplicationType.QAB),
+                StatusCounts = Enum.GetValues<ApplicationStatus>()
+                    .Select(s => new StatusCountViewModel { Status = s, Count = statusCounts.GetValueOrDefault(s) })
+                    .Where(c => c.Count > 0)
+                    .ToList(),
+                DeskReviewPendingCount = (await _deskReviewService.GetQueueAsync()).Count,
+                AssessmentNeedsTeamCount = (await _assessmentService.GetAssignmentQueueAsync()).Count,
+                AssessmentAwaitingAttentionCount = assessmentActive.Count(a => a.Status == AssessmentAssignmentStatus.WindowClosed),
+                TaQecPendingCount = (await _taQecService.GetQueueAsync()).Count,
+                WorthyForVisitCount = statusCounts.GetValueOrDefault(ApplicationStatus.WorthyForVisit),
+                DeficientCount = statusCounts.GetValueOrDefault(ApplicationStatus.Deficient),
+                GradedCount = statusCounts.GetValueOrDefault(ApplicationStatus.TaQecGraded)
+            };
+
+            return View(model);
         }
 
         // Read-only listing so Admin can confirm what's configured - full template CRUD is a follow-up
@@ -127,7 +167,8 @@ namespace accreditation_portal.Controllers
                 {
                     RoleName = r,
                     IsSelected = currentRoles.Contains(r)
-                }).ToList()
+                }).ToList(),
+                IsChairperson = user.IsChairperson
             };
 
             return View(model);
@@ -151,6 +192,10 @@ namespace accreditation_portal.Controllers
 
             await _userManager.AddToRolesAsync(user, rolesToAdd);
             await _userManager.RemoveFromRolesAsync(user, rolesToRemove);
+
+            // Only meaningful while the user still holds TAQEC - clear it if the role was just removed.
+            user.IsChairperson = selectedRoles.Contains(Roles.TAQEC) && model.IsChairperson;
+            await _userManager.UpdateAsync(user);
 
             return RedirectToAction(nameof(Users));
         }

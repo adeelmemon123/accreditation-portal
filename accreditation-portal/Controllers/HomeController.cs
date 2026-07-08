@@ -13,12 +13,18 @@ namespace accreditation_portal.Controllers
             // send them straight into their sidebar console instead.
             if (User.IsInRole(Roles.Admin))
             {
-                return RedirectToAction(nameof(AdminController.Users), "Admin");
+                return RedirectToAction(nameof(AdminController.Dashboard), "Admin");
             }
 
             if (User.IsInRole(Roles.Institute) || User.IsInRole(Roles.QAB))
             {
                 return RedirectToAction(nameof(ApplicationsController.Index), "Applications");
+            }
+
+            // Not signed in at all - skip the marketing page and go straight to the login screen.
+            if (User.Identity is not { IsAuthenticated: true })
+            {
+                return RedirectToAction(nameof(AccountController.Login), "Account");
             }
 
             return View();

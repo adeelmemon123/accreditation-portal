@@ -124,7 +124,9 @@ namespace accreditation_portal.Controllers
                 Email = string.IsNullOrWhiteSpace(model.Email) ? null : model.Email,
                 FullName = model.FullName,
                 Cnic = model.Cnic,
-                MobileNo = model.MobileNo
+                MobileNo = model.MobileNo,
+                Province = model.Province,
+                Sector = model.Sector
             };
 
             var result = await _userManager.CreateAsync(user, model.Password);

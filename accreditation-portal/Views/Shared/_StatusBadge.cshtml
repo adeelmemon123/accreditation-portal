@@ -10,6 +10,11 @@
         ApplicationStatus.UnderDeskReview => ("Under Desk Review", "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"),
         ApplicationStatus.WorthyForVisit => ("Worthy for Visit", "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300"),
         ApplicationStatus.Deficient => ("Deficient", "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"),
+        ApplicationStatus.AssessmentAssigned => ("Assessment Assigned", "bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-300"),
+        ApplicationStatus.AssessmentInProgress => ("Assessment In Progress", "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300"),
+        ApplicationStatus.AssessmentSubmitted => ("Assessment Submitted", "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-300"),
+        ApplicationStatus.UnderTaQecReview => ("Under TA-QEC Review", "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300"),
+        ApplicationStatus.TaQecGraded => ("TA-QEC Graded", "bg-lime-100 text-lime-800 dark:bg-lime-900 dark:text-lime-300"),
         _ => (Model.ToString(), "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300")
     };
 }

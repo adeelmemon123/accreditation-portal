@@ -9,10 +9,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace accreditation_portal.Controllers
 {
-    // Self-Assessment is the applicant's own self-report - Admin is only included so the Evidence action
-    // below can stream a file for Desk Review verification; GetOwnedApplicationAsync's strict ownership
-    // check still blocks Admin from every other (mutating) action here, same pattern as ApplicationsController.
-    [Authorize(Roles = $"{Roles.Institute},{Roles.QAB},{Roles.Admin}")]
+    // Self-Assessment is the applicant's own self-report - Admin and TAQEC are only included so the
+    // Evidence action below can stream a file for Desk Review/TA-QEC report verification;
+    // GetOwnedApplicationAsync's strict ownership check still blocks both from every other (mutating)
+    // action here, same pattern as ApplicationsController.
+    [Authorize(Roles = $"{Roles.Institute},{Roles.QAB},{Roles.Admin},{Roles.TAQEC}")]
     public class SelfAssessmentController : Controller
     {
         private readonly IApplicationService _applicationService;
@@ -204,7 +205,7 @@ namespace accreditation_portal.Controllers
             }
 
             var isOwner = evidence.SelfAssessmentResponse.Application.ApplicantUserId == CurrentUserId;
-            if (!isOwner && !User.IsInRole(Roles.Admin))
+            if (!isOwner && !User.IsInRole(Roles.Admin) && !User.IsInRole(Roles.TAQEC))
             {
                 return Forbid();
             }

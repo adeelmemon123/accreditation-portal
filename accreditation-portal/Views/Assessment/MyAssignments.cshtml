@@ -1,0 +1,89 @@
+@using accreditation_portal.Models.Applications
+@model List<AssessmentAssignment>
+@{
+    ViewData["Title"] = "My Assignments";
+    var active = Model.Where(a => a.Status == AssessmentAssignmentStatus.WindowOpen).ToList();
+    var past = Model.Where(a => a.Status != AssessmentAssignmentStatus.WindowOpen).ToList();
+}
+
+<h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Active Assignments</h1>
+
+<div class="relative overflow-x-auto shadow-md sm:rounded-lg mb-8">
+    <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+            <tr>
+                <th scope="col" class="px-6 py-3">Id</th>
+                <th scope="col" class="px-6 py-3">Applicant</th>
+                <th scope="col" class="px-6 py-3">Type</th>
+                <th scope="col" class="px-6 py-3">Time Remaining</th>
+                <th scope="col" class="px-6 py-3"><span class="sr-only">Actions</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var assignment in active)
+            {
+                var remaining = assignment.WindowEndAt!.Value - DateTime.UtcNow;
+                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">#@assignment.Application.Id</td>
+                    <td class="px-6 py-4">@assignment.Application.ApplicantUser.FullName</td>
+                    <td class="px-6 py-4">@assignment.Application.ApplicationType</td>
+                    <td class="px-6 py-4">
+                        @if (remaining > TimeSpan.Zero)
+                        {
+                            <span class="text-amber-700 dark:text-amber-400 font-medium">@((int)remaining.TotalDays)d @remaining.Hours h remaining</span>
+                        }
+                        else
+                        {
+                            <span class="text-red-600 font-medium">Expired</span>
+                        }
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <a asp-controller="Assessment" asp-action="Findings" asp-route-assignmentId="@assignment.Id" class="font-medium text-primary-600 dark:text-primary-500 hover:underline">Enter Findings</a>
+                    </td>
+                </tr>
+            }
+            @if (!active.Any())
+            {
+                <tr class="bg-white dark:bg-gray-800">
+                    <td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">No active assignments right now.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Past Assignments</h2>
+
+<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+    <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+            <tr>
+                <th scope="col" class="px-6 py-3">Id</th>
+                <th scope="col" class="px-6 py-3">Applicant</th>
+                <th scope="col" class="px-6 py-3">Type</th>
+                <th scope="col" class="px-6 py-3">Status</th>
+                <th scope="col" class="px-6 py-3"><span class="sr-only">Actions</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var assignment in past)
+            {
+                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">#@assignment.Application.Id</td>
+                    <td class="px-6 py-4">@assignment.Application.ApplicantUser.FullName</td>
+                    <td class="px-6 py-4">@assignment.Application.ApplicationType</td>
+                    <td class="px-6 py-4">@assignment.Status</td>
+                    <td class="px-6 py-4 text-right">
+                        <a asp-controller="Assessment" asp-action="Findings" asp-route-assignmentId="@assignment.Id" class="font-medium text-primary-600 dark:text-primary-500 hover:underline">View</a>
+                    </td>
+                </tr>
+            }
+            @if (!past.Any())
+            {
+                <tr class="bg-white dark:bg-gray-800">
+                    <td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">No past assignments.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

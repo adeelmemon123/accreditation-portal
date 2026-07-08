@@ -1,0 +1,53 @@
+@using accreditation_portal.Models.Applications
+@model List<Application>
+@{
+    ViewData["Title"] = "TA-QEC Queue";
+}
+
+@if (TempData["Error"] is string error)
+{
+    <div class="mb-4 p-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400">@error</div>
+}
+@if (TempData["Success"] is string success)
+{
+    <div class="mb-4 p-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400">@success</div>
+}
+
+<h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">TA-QEC Queue</h1>
+<p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Applications with a submitted on-site assessment, sorted oldest-first.</p>
+
+<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+    <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+            <tr>
+                <th scope="col" class="px-6 py-3">Id</th>
+                <th scope="col" class="px-6 py-3">Applicant</th>
+                <th scope="col" class="px-6 py-3">Type</th>
+                <th scope="col" class="px-6 py-3">Status</th>
+                <th scope="col" class="px-6 py-3"><span class="sr-only">Actions</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var application in Model)
+            {
+                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">#@application.Id</td>
+                    <td class="px-6 py-4">@application.ApplicantUser.FullName</td>
+                    <td class="px-6 py-4">@application.ApplicationType</td>
+                    <td class="px-6 py-4">@await Html.PartialAsync("_StatusBadge", application.Status)</td>
+                    <td class="px-6 py-4 text-right">
+                        <a asp-controller="TaQec" asp-action="Report" asp-route-applicationId="@application.Id" class="font-medium text-primary-600 dark:text-primary-500 hover:underline">
+                            @(application.Status == ApplicationStatus.UnderTaQecReview ? "Continue Review" : "Start Review")
+                        </a>
+                    </td>
+                </tr>
+            }
+            @if (!Model.Any())
+            {
+                <tr class="bg-white dark:bg-gray-800">
+                    <td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">Nothing waiting for TA-QEC review.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

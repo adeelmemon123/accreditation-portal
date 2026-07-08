@@ -76,6 +76,18 @@ namespace accreditation_portal.Services
             return applications;
         }
 
+        public async Task<Dictionary<ApplicationStatus, int>> GetStatusCountsAsync() =>
+            await _context.Applications
+                .GroupBy(a => a.Status)
+                .Select(g => new { Status = g.Key, Count = g.Count() })
+                .ToDictionaryAsync(g => g.Status, g => g.Count);
+
+        public async Task<Dictionary<ApplicationType, int>> GetTypeCountsAsync() =>
+            await _context.Applications
+                .GroupBy(a => a.ApplicationType)
+                .Select(g => new { Type = g.Key, Count = g.Count() })
+                .ToDictionaryAsync(g => g.Type, g => g.Count);
+
         public async Task<Application> StartApplicationAsync(string userId, ApplicationType type, string? ipAddress)
         {
             var existingDraft = await GetActiveDraftAsync(userId);
@@ -122,6 +134,7 @@ namespace accreditation_portal.Services
             profile.RegistrationNumber = model.RegistrationNumber;
             profile.AffiliationBody = model.AffiliationBody;
             profile.EstablishedYear = model.EstablishedYear;
+            profile.Sector = model.Sector;
 
             application.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
@@ -149,6 +162,7 @@ namespace accreditation_portal.Services
             profile.RegistrationNumber = model.RegistrationNumber;
             profile.ScopeOfAwarding = model.ScopeOfAwarding;
             profile.AccreditingBodyReference = model.AccreditingBodyReference;
+            profile.Sector = model.Sector;
 
             application.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();

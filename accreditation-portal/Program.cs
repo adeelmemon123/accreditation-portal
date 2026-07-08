@@ -1,9 +1,14 @@
+using accreditation_portal.Authorization;
 using accreditation_portal.Data;
 using accreditation_portal.Models;
 using accreditation_portal.Services;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using QuestPDF.Infrastructure;
+
+QuestPDF.Settings.License = LicenseType.Community;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +23,15 @@ builder.Services.AddScoped<IApplicationLogService, ApplicationLogService>();
 builder.Services.AddScoped<IApplicationService, ApplicationService>();
 builder.Services.AddScoped<ISelfAssessmentService, SelfAssessmentService>();
 builder.Services.AddScoped<IDeskReviewService, DeskReviewService>();
+builder.Services.AddScoped<IAssessmentService, AssessmentService>();
+builder.Services.AddHostedService<AssessmentWindowMonitorService>();
+builder.Services.AddScoped<ITaQecService, TaQecService>();
+builder.Services.AddScoped<ITaQecReportPdfGenerator, TaQecReportPdfGenerator>();
+builder.Services.AddScoped<IAuthorizationHandler, TaQecChairpersonHandler>();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("RequireTaQecChairperson", policy => policy.Requirements.Add(new TaQecChairpersonRequirement()));
+});
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     {

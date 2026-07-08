@@ -38,5 +38,9 @@ namespace accreditation_portal.Models.ApplicationViewModels
 
         [Display(Name = "Accrediting Body Reference")]
         public string? AccreditingBodyReference { get; set; }
+
+        [Required]
+        [Display(Name = "Sector")]
+        public string Sector { get; set; } = string.Empty;
     }
 }

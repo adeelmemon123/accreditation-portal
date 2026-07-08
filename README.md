@@ -94,3 +94,94 @@ Run the new migration the same way as any other:
 cd accreditation-portal
 dotnet ef database update
 ```
+
+## On-Site Assessment module (Step 4)
+
+Migration `AddAssessmentModuleSchema` adds `AssessmentAssignments` (one-to-one with `Applications`),
+`AssessmentTeamMembers`, `AssessmentFindings`, and `AssessmentEvidence`, plus a `Sector` column on
+`AspNetUsers` (SectorExpert/Assessor only, captured at `RegisterAssessor`) and on `InstituteProfiles`/
+`QABProfiles` (captured in the existing Step 1 profile forms) - added so the assignment picker can
+match assessors to applications by Province + Sector. Three new `ApplicationStatus` values:
+`WorthyForVisit -> AssessmentAssigned -> AssessmentInProgress -> AssessmentSubmitted`. No existing
+table/column was otherwise changed.
+
+**Time-box enforcement is live, not status-based.** `AssessmentAssignment.Status` (`NotStarted` ->
+`WindowOpen` -> `WindowClosed`/`FindingsSubmitted`) exists for dashboards, but every write action
+(`SaveFindings`, `DeleteEvidence`, `Submit`) re-derives "is the window actually still open" itself via
+`AssessmentService.EnsureWindowOpenForEditing`, comparing `DateTime.UtcNow` against
+`WindowEndAt` directly - it never trusts `Status` alone. `AssessmentWindowMonitorService` (a
+`BackgroundService`, polling every minute) is what flips `Status` to `WindowClosed` and logs
+`AssessmentWindowClosed` once `WindowEndAt` lapses, but that's purely for the Admin queue's
+"awaiting attention" section - a slow poll can make the dashboard lag reality briefly, it can never
+let a write through past the deadline, since the live check doesn't depend on the job having run.
+
+Findings/evidence are entered per checklist item (same `ChecklistItem` structure as Step 2), any
+assigned team member may edit any item (`AssessmentFinding` is one row per item, upserted, not
+siloed per person). Evidence reuses `IFileStorageService` under
+`applications/{applicationId}/assessment/{checklistItemId}/`, served via
+`/Assessment/Evidence/{evidenceId}` gated to the assignment's team members/Convener.
+
+Admin reaches this via the sidebar - **On-Site Assessment** (`/Assessment/Queue`): assign a
+Convener + Assessor team to a `WorthyForVisit` application (`/Assessment/Assign`), then a separate
+**Open Window** action starts the 3-day clock. Assessors get their own **My Assignments** nav
+(`/Assessment/MyAssignments`) showing a live countdown; the Convener (an Admin user) shares the same
+Findings/Submit page read-only-plus-submit, without edit rights on the findings themselves.
+
+Institute/QAB only see the status badge for these four statuses - assessor findings are internal
+input for the next module (TA-QEC) and are never shown to the applicant.
+
+Run the new migration the same way as any other:
+
+```
+cd accreditation-portal
+dotnet ef database update
+```
+
+The background job registers itself automatically (`builder.Services.AddHostedService<AssessmentWindowMonitorService>()`
+in `Program.cs`) - no separate command needed, it starts with the app.
+
+## TA-QEC Committee Review module (Step 5)
+
+Migration `AddTaQecModuleSchema` adds `TaQecReviews` (one-to-one with `Applications`) and
+`TaQecDiscussionNotes` (append-only - no uniqueness constraint, unlike prior modules' single-note-per-item
+pattern, since multiple committee members can each leave multiple notes). It also **renames the
+`TAQECChairperson` Identity role to `TAQEC`** via raw SQL in the migration (no user held that role at
+the time, so this was a clean rename, not a data migration) and adds `IsChairperson` (bool) to
+`ApplicationUser`. Two new `ApplicationStatus` values:
+`AssessmentSubmitted -> UnderTaQecReview -> TaQecGraded`. No other existing table/column was changed.
+
+**Role + flag, not two roles.** Every `TAQEC` member can view the report and add discussion notes.
+Only locking the final grade requires the `RequireTaQecChairperson` policy (`Authorization/TaQecChairpersonRequirement.cs`
++ `TaQecChairpersonHandler.cs`), which checks `TAQEC` role **and** `IsChairperson == true` - read live
+from the DB via `UserManager` on every check (same "live over cached" principle as the Assessment
+window enforcement), so Admin toggling the flag on Admin's Edit Roles page (`/Admin/EditRoles`, checkbox
+shown only when TAQEC is selected) takes effect immediately, not just after the user's next login.
+
+**The report** (`TaQecService.BuildReportAsync`) joins, per checklist item: the applicant's Step 2
+self-score/comments/evidence, Step 3 Desk Review flag/comment (if any), and Step 4 assessor
+strengths/weaknesses/findings/recommended-score/evidence - plus a header (applicant name, province,
+sector) and stats (avg self-score vs avg assessor score, Desk Review flag count). It's read-only here;
+TA-QEC never edits Step 2-4 data, only adds its own discussion notes and final grade.
+
+**PDF export** (`TaQecReportPdfGenerator`, via the newly-added **QuestPDF** package, Community license)
+renders the same `TaQecReportViewModel` as a visually-segmented PDF (header/stats/section blocks) -
+this is the "PowerPoint style" the workflow doc describes, interpreted as styling rather than a literal
+`.pptx` file (confirmed with the user before building). Download via
+`/TaQec/DownloadPdf/{applicationId}`.
+
+Since the report needs to link to Step 2/Step 4 evidence, `SelfAssessmentController.Evidence` and
+`AssessmentController.Evidence` now also allow `TAQEC` (read-only, same narrow-bypass pattern used for
+Admin/Desk-Review's access to Step 2 evidence) - no other action on either controller accepts TAQEC.
+
+Admin reaches the sidebar via **TA-QEC Queue** (`/TaQec/Queue`, oldest-first) and **Graded
+Applications** (`/TaQec/Graded`, filterable by grade); TA-QEC users get their own sidebar
+(`_TaQecLayout.cshtml`) with the same two links. Institute/QAB only see the status badge for
+`UnderTaQecReview`/`TaQecGraded` - the grade and rationale are not revealed to the applicant at this
+stage (read as an internal step; the applicant-facing reveal happens at NAC approval, the next module).
+
+Run the new migration the same way as any other:
+
+```
+cd accreditation-portal
+dotnet ef database update
+```

@@ -1,0 +1,61 @@
+@using accreditation_portal.Models.Applications
+@model AssessmentAssignment
+@{
+    ViewData["Title"] = "Assessment Assignment";
+}
+
+<div class="max-w-3xl mx-auto space-y-6">
+    @if (TempData["Error"] is string error)
+    {
+        <div class="p-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400">@error</div>
+    }
+    @if (TempData["Success"] is string success)
+    {
+        <div class="p-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400">@success</div>
+    }
+
+    <div class="bg-white rounded-lg shadow dark:border sm:p-8 p-6 dark:bg-gray-800 dark:border-gray-700 space-y-6">
+        <div>
+            <h1 class="text-xl font-bold text-gray-900 dark:text-white mb-1">Application #@Model.Application.Id</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400">@Model.Application.ApplicantUser.FullName &middot; @Model.Application.ApplicationType</p>
+        </div>
+
+        <dl class="grid grid-cols-2 gap-4 text-sm">
+            <div><dt class="text-gray-400 text-xs uppercase">Convener</dt><dd class="text-gray-900 dark:text-white">@Model.Convener.FullName</dd></div>
+            <div><dt class="text-gray-400 text-xs uppercase">Team</dt><dd class="text-gray-900 dark:text-white">@string.Join(", ", Model.TeamMembers.Select(m => m.AssessorUser.FullName))</dd></div>
+            <div><dt class="text-gray-400 text-xs uppercase">Status</dt><dd class="text-gray-900 dark:text-white">@Model.Status</dd></div>
+            <div>
+                <dt class="text-gray-400 text-xs uppercase">Window</dt>
+                <dd class="text-gray-900 dark:text-white">
+                    @if (Model.WindowEndAt.HasValue)
+                    {
+                        @($"{Model.WindowStartAt:dd MMM yyyy HH:mm} - {Model.WindowEndAt:dd MMM yyyy HH:mm}")
+                    }
+                    else
+                    {
+                        <span class="text-gray-400">Not opened yet</span>
+                    }
+                </dd>
+            </div>
+        </dl>
+
+        <div class="flex items-center justify-between pt-2">
+            <a asp-controller="Assessment" asp-action="Queue" class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:underline">&larr; Back to Queue</a>
+
+            @if (Model.Status == AssessmentAssignmentStatus.NotStarted)
+            {
+                <form asp-controller="Assessment" asp-action="OpenWindow" asp-route-applicationId="@Model.Application.Id" method="post" onsubmit="return confirm('Open the 3-day assessment window now? Assessors will get access immediately.');">
+                    <button type="submit" class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-6 py-2.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
+                        Open Window
+                    </button>
+                </form>
+            }
+            else
+            {
+                <a asp-controller="Assessment" asp-action="Findings" asp-route-assignmentId="@Model.Id" class="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-6 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
+                    View Findings
+                </a>
+            }
+        </div>
+    </div>
+</div>

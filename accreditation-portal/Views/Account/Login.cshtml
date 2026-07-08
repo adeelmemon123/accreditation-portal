@@ -3,52 +3,82 @@
     ViewData["Title"] = "Login";
 }
 
-<div class="flex justify-center">
-    <div class="w-full bg-white rounded-lg shadow dark:border sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
-        <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
-            <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-                Login
+<div class="w-full max-w-md mx-auto">
+    <div class="bg-white rounded-2xl shadow-xl dark:bg-gray-800 dark:border dark:border-gray-700 p-8 sm:p-10">
+        <div class="text-center mb-8">
+            <div class="mx-auto mb-4 flex items-center justify-center w-14 h-14 rounded-2xl bg-primary-50 dark:bg-gray-700">
+                <svg class="w-7 h-7 text-primary-700 dark:text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                </svg>
+            </div>
+            <h1 class="text-2xl font-bold leading-tight tracking-tight text-gray-900 dark:text-white">
+                Welcome back
             </h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Sign in to continue to your account</p>
+        </div>
 
-            <form asp-controller="Account" asp-action="Login" method="post" class="space-y-4 md:space-y-6">
-                <input type="hidden" asp-for="ReturnUrl" />
-                <div asp-validation-summary="ModelOnly" class="text-red-600 text-sm"></div>
+        <form asp-controller="Account" asp-action="Login" method="post" class="space-y-5">
+            <input type="hidden" asp-for="ReturnUrl" />
+            <div asp-validation-summary="ModelOnly" class="text-red-600 text-sm"></div>
 
-                <div>
-                    <label asp-for="Identifier" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"></label>
-                    <input asp-for="Identifier" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" />
-                    <span asp-validation-for="Identifier" class="text-red-600 text-sm"></span>
+            <div>
+                <label asp-for="Identifier" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"></label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </span>
+                    <input asp-for="Identifier" class="pl-11 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" />
                 </div>
+                <span asp-validation-for="Identifier" class="text-red-600 text-sm"></span>
+            </div>
 
-                <div>
-                    <label asp-for="Password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"></label>
-                    <input asp-for="Password" type="password" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" />
-                    <span asp-validation-for="Password" class="text-red-600 text-sm"></span>
+            <div>
+                <label asp-for="Password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"></label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                        </svg>
+                    </span>
+                    <input asp-for="Password" type="password" class="pl-11 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" />
                 </div>
+                <span asp-validation-for="Password" class="text-red-600 text-sm"></span>
+            </div>
 
-                <div class="flex items-center">
-                    <input asp-for="RememberMe" type="checkbox" class="w-4 h-4 border border-gray-300 rounded-sm bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600" />
-                    <label asp-for="RememberMe" class="ms-2 text-sm font-medium text-gray-900 dark:text-white"></label>
-                </div>
+            <div class="flex items-center">
+                <input asp-for="RememberMe" type="checkbox" class="w-4 h-4 border border-gray-300 rounded-sm bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600" />
+                <label asp-for="RememberMe" class="ms-2 text-sm font-medium text-gray-900 dark:text-white"></label>
+            </div>
 
-                <button type="submit" class="w-full text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
-                    Login
-                </button>
-            </form>
+            <button type="submit" class="w-full text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-3 text-center shadow-sm shadow-primary-700/30 transition dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
+                Sign in
+            </button>
+        </form>
 
-            <div class="pt-2 border-t border-gray-200 dark:border-gray-700 space-y-3">
-                <p class="text-sm font-medium text-gray-700 dark:text-gray-300 pt-4">New here? Register as:</p>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <a asp-controller="Account" asp-action="RegisterInstitute" class="text-center text-sm font-medium text-primary-700 bg-primary-50 hover:bg-primary-100 rounded-lg px-4 py-2.5 dark:bg-gray-700 dark:text-primary-400 dark:hover:bg-gray-600">
-                        Institute
-                    </a>
-                    <a asp-controller="Account" asp-action="RegisterAssessor" class="text-center text-sm font-medium text-primary-700 bg-primary-50 hover:bg-primary-100 rounded-lg px-4 py-2.5 dark:bg-gray-700 dark:text-primary-400 dark:hover:bg-gray-600">
-                        Assessor
-                    </a>
-                    <a asp-controller="Account" asp-action="Register" class="text-center text-sm font-medium text-primary-700 bg-primary-50 hover:bg-primary-100 rounded-lg px-4 py-2.5 dark:bg-gray-700 dark:text-primary-400 dark:hover:bg-gray-600">
-                        QAB
-                    </a>
-                </div>
+        <div class="mt-8 pt-6 border-t border-gray-100 dark:border-gray-700">
+            <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 text-center">New here? Register as:</p>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <a asp-controller="Account" asp-action="RegisterInstitute" class="group flex flex-col items-center gap-1.5 text-center rounded-xl px-3 py-3 border border-gray-200 hover:border-primary-300 hover:bg-primary-50 transition dark:border-gray-700 dark:hover:bg-gray-700 dark:hover:border-primary-700">
+                    <svg class="w-5 h-5 text-gray-400 group-hover:text-primary-600 dark:group-hover:text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
+                    </svg>
+                    <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Institute</span>
+                </a>
+                <a asp-controller="Account" asp-action="RegisterAssessor" class="group flex flex-col items-center gap-1.5 text-center rounded-xl px-3 py-3 border border-gray-200 hover:border-primary-300 hover:bg-primary-50 transition dark:border-gray-700 dark:hover:bg-gray-700 dark:hover:border-primary-700">
+                    <svg class="w-5 h-5 text-gray-400 group-hover:text-primary-600 dark:group-hover:text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5a4.5 4.5 0 10-9 0 4.5 4.5 0 009 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 20.25a7.5 7.5 0 0115 0" />
+                    </svg>
+                    <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Assessor</span>
+                </a>
+                <a asp-controller="Account" asp-action="Register" class="group flex flex-col items-center gap-1.5 text-center rounded-xl px-3 py-3 border border-gray-200 hover:border-primary-300 hover:bg-primary-50 transition dark:border-gray-700 dark:hover:bg-gray-700 dark:hover:border-primary-700">
+                    <svg class="w-5 h-5 text-gray-400 group-hover:text-primary-600 dark:group-hover:text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                    </svg>
+                    <span class="text-xs font-medium text-gray-700 dark:text-gray-300">QAB</span>
+                </a>
             </div>
         </div>
     </div>

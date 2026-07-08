@@ -5,7 +5,7 @@ namespace accreditation_portal.Authorization
         public const string Admin = "Admin";
         public const string ProvincialTEVTA = "ProvincialTEVTA";
         public const string SectorExpert = "SectorExpert";
-        public const string TAQECChairperson = "TAQECChairperson";
+        public const string TAQEC = "TAQEC";
         public const string NACChairman = "NACChairman";
         public const string Institute = "Institute";
         public const string QAB = "QAB";
@@ -15,7 +15,7 @@ namespace accreditation_portal.Authorization
             Admin,
             ProvincialTEVTA,
             SectorExpert,
-            TAQECChairperson,
+            TAQEC,
             NACChairman,
             Institute,
             QAB
@@ -32,7 +32,7 @@ namespace accreditation_portal.Authorization
         {
             Admin,
             ProvincialTEVTA,
-            TAQECChairperson,
+            TAQEC,
             NACChairman
         };
     }

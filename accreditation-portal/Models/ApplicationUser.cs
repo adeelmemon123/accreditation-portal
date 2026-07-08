@@ -15,6 +15,14 @@ namespace accreditation_portal.Models
         public string? Tehsil { get; set; }
         public string? InstituteName { get; set; }
 
+        // SectorExpert (Assessor) only - used to match assessors to applications during On-Site Assessment assignment.
+        public string? Sector { get; set; }
+
+        // TAQEC role only - distinguishes the Chairperson (can lock the final grade) from regular
+        // committee members (can view/discuss only). Checked live via RequireTaQecChairperson, not a
+        // separate Identity role, so Admin can toggle it without a role reassignment.
+        public bool IsChairperson { get; set; }
+
         public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
     }
 }

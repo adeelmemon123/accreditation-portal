@@ -1,0 +1,3 @@
+@{
+    Layout = User.IsInRole(Roles.Admin) ? "_AdminLayout" : "_AssessorLayout";
+}

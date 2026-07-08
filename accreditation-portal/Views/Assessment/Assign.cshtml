@@ -1,0 +1,64 @@
+@using accreditation_portal.Models.AssessmentViewModels
+@model CreateAssignmentViewModel
+@{
+    ViewData["Title"] = "Assign Assessment Team";
+}
+
+<div class="max-w-3xl mx-auto space-y-6">
+    @if (TempData["Error"] is string error)
+    {
+        <div class="p-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400">@error</div>
+    }
+
+    <div class="bg-white rounded-lg shadow dark:border sm:p-8 p-6 dark:bg-gray-800 dark:border-gray-700 space-y-6">
+        <div>
+            <h1 class="text-xl font-bold text-gray-900 dark:text-white mb-1">Assign Assessment Team</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Application #@Model.Application.Id &middot; @Model.Application.ApplicantUser.FullName &middot; @Model.Application.ApplicationType</p>
+        </div>
+
+        <form asp-controller="Assessment" asp-action="CreateAssignment" asp-route-applicationId="@Model.Application.Id" method="post" class="space-y-6">
+            <div>
+                <label class="block mb-2 text-sm font-semibold text-gray-900 dark:text-white">Convener <span class="text-red-600">*</span></label>
+                <select name="ConvenerId" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    <option value="">-- Select Convener --</option>
+                    @foreach (var convener in Model.Conveners)
+                    {
+                        <option value="@convener.Id">@convener.FullName (@convener.Email)</option>
+                    }
+                </select>
+            </div>
+
+            <div>
+                <label class="block mb-2 text-sm font-semibold text-gray-900 dark:text-white">Assessors <span class="text-red-600">*</span></label>
+                <p class="text-xs text-gray-400 mb-2">Matched by Province + Sector are listed first and highlighted - you can still pick anyone.</p>
+                <div class="space-y-2 max-h-96 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+                    @foreach (var assessor in Model.Assessors)
+                    {
+                        <label class="flex items-center gap-3 p-2 rounded-lg @(assessor.IsMatch ? "bg-green-50 dark:bg-green-900/20" : "")">
+                            <input type="checkbox" name="AssessorUserIds" value="@assessor.UserId" class="rounded" />
+                            <span class="text-sm text-gray-900 dark:text-white">
+                                @assessor.FullName
+                                <span class="text-xs text-gray-400">(@(assessor.Province ?? "-") &middot; @(assessor.Sector ?? "-"))</span>
+                                @if (assessor.IsMatch)
+                                {
+                                    <span class="text-xs font-medium text-green-700 dark:text-green-400">Match</span>
+                                }
+                            </span>
+                        </label>
+                    }
+                    @if (!Model.Assessors.Any())
+                    {
+                        <p class="text-sm text-gray-500 dark:text-gray-400 p-2">No registered assessors yet.</p>
+                    }
+                </div>
+            </div>
+
+            <div class="flex justify-between pt-2">
+                <a asp-controller="Assessment" asp-action="Queue" class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:underline">&larr; Back to Queue</a>
+                <button type="submit" class="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-6 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
+                    Assign Team
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -16,5 +16,8 @@ namespace accreditation_portal.Models.Applications
         public string RegistrationNumber { get; set; } = string.Empty;
         public string AffiliationBody { get; set; } = string.Empty;
         public int EstablishedYear { get; set; }
+
+        // Used to match assessors to this application during On-Site Assessment assignment.
+        public string? Sector { get; set; }
     }
 }

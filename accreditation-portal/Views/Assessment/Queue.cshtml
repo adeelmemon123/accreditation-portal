@@ -1,0 +1,110 @@
+@using accreditation_portal.Models.Applications
+@model List<AssessmentAssignment>
+@{
+    ViewData["Title"] = "On-Site Assessment Queue";
+    var needsAssignment = (List<Application>)ViewBag.NeedsAssignment;
+}
+
+@if (TempData["Error"] is string error)
+{
+    <div class="mb-4 p-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400">@error</div>
+}
+@if (TempData["Success"] is string success)
+{
+    <div class="mb-4 p-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400">@success</div>
+}
+
+<h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">Needs Team Assignment</h1>
+<p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Applications marked Worthy for Visit, waiting for a Convener/Assessor team.</p>
+
+<div class="relative overflow-x-auto shadow-md sm:rounded-lg mb-8">
+    <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+            <tr>
+                <th scope="col" class="px-6 py-3">Id</th>
+                <th scope="col" class="px-6 py-3">Applicant</th>
+                <th scope="col" class="px-6 py-3">Type</th>
+                <th scope="col" class="px-6 py-3"><span class="sr-only">Actions</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var application in needsAssignment)
+            {
+                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">#@application.Id</td>
+                    <td class="px-6 py-4">@application.ApplicantUser.FullName</td>
+                    <td class="px-6 py-4">@application.ApplicationType</td>
+                    <td class="px-6 py-4 text-right">
+                        <a asp-controller="Assessment" asp-action="Assign" asp-route-applicationId="@application.Id" class="font-medium text-primary-600 dark:text-primary-500 hover:underline">Assign Team</a>
+                    </td>
+                </tr>
+            }
+            @if (!needsAssignment.Any())
+            {
+                <tr class="bg-white dark:bg-gray-800">
+                    <td colspan="4" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">Nothing waiting for team assignment.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<h2 class="text-xl font-bold text-gray-900 dark:text-white mb-1">In Progress / Awaiting Attention</h2>
+<p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Assigned teams, open windows, and windows that closed without a submission.</p>
+
+<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+    <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+            <tr>
+                <th scope="col" class="px-6 py-3">Id</th>
+                <th scope="col" class="px-6 py-3">Applicant</th>
+                <th scope="col" class="px-6 py-3">Convener</th>
+                <th scope="col" class="px-6 py-3">Team</th>
+                <th scope="col" class="px-6 py-3">Window</th>
+                <th scope="col" class="px-6 py-3">Status</th>
+                <th scope="col" class="px-6 py-3"><span class="sr-only">Actions</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var assignment in Model)
+            {
+                var isException = assignment.Status == AssessmentAssignmentStatus.WindowClosed;
+                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 @(isException ? "bg-red-50 dark:bg-red-900/20" : "")">
+                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">#@assignment.Application.Id</td>
+                    <td class="px-6 py-4">@assignment.Application.ApplicantUser.FullName</td>
+                    <td class="px-6 py-4">@assignment.Convener.FullName</td>
+                    <td class="px-6 py-4">@string.Join(", ", assignment.TeamMembers.Select(m => m.AssessorUser.FullName))</td>
+                    <td class="px-6 py-4">
+                        @if (assignment.WindowEndAt.HasValue)
+                        {
+                            @assignment.WindowEndAt.Value.ToLocalTime().ToString("dd MMM yyyy HH:mm")
+                        }
+                        else
+                        {
+                            <span class="text-gray-400">Not opened</span>
+                        }
+                    </td>
+                    <td class="px-6 py-4">
+                        @if (isException)
+                        {
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300">Closed - No Submission</span>
+                        }
+                        else
+                        {
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">@assignment.Status</span>
+                        }
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <a asp-controller="Assessment" asp-action="Assign" asp-route-applicationId="@assignment.Application.Id" class="font-medium text-primary-600 dark:text-primary-500 hover:underline">View</a>
+                    </td>
+                </tr>
+            }
+            @if (!Model.Any())
+            {
+                <tr class="bg-white dark:bg-gray-800">
+                    <td colspan="7" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">Nothing in progress.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

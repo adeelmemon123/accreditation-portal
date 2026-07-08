@@ -24,6 +24,12 @@ namespace accreditation_portal.Data
         public DbSet<SelfAssessmentEvidence> SelfAssessmentEvidence => Set<SelfAssessmentEvidence>();
         public DbSet<DeskReview> DeskReviews => Set<DeskReview>();
         public DbSet<DeskReviewItemComment> DeskReviewItemComments => Set<DeskReviewItemComment>();
+        public DbSet<AssessmentAssignment> AssessmentAssignments => Set<AssessmentAssignment>();
+        public DbSet<AssessmentTeamMember> AssessmentTeamMembers => Set<AssessmentTeamMember>();
+        public DbSet<AssessmentFinding> AssessmentFindings => Set<AssessmentFinding>();
+        public DbSet<AssessmentEvidence> AssessmentEvidence => Set<AssessmentEvidence>();
+        public DbSet<TaQecReview> TaQecReviews => Set<TaQecReview>();
+        public DbSet<TaQecDiscussionNote> TaQecDiscussionNotes => Set<TaQecDiscussionNote>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

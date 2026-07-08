@@ -187,6 +187,9 @@ namespace accreditation_portal.Migrations
                     b.Property<string>("InstituteName")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsChairperson")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
 
@@ -214,6 +217,9 @@ namespace accreditation_portal.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("Province")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Sector")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SecurityStamp")
@@ -362,6 +368,170 @@ namespace accreditation_portal.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("ApplicationLogs");
+                });
+
+            modelBuilder.Entity("accreditation_portal.Models.Applications.AssessmentAssignment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ApplicationId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ConvenerId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime?>("WindowEndAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("WindowStartAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicationId")
+                        .IsUnique();
+
+                    b.HasIndex("ConvenerId");
+
+                    b.ToTable("AssessmentAssignments");
+                });
+
+            modelBuilder.Entity("accreditation_portal.Models.Applications.AssessmentEvidence", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AssessmentFindingId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("FileSizeBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("StoredFileName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UploadedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UploadedByUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssessmentFindingId");
+
+                    b.HasIndex("UploadedByUserId");
+
+                    b.ToTable("AssessmentEvidence");
+                });
+
+            modelBuilder.Entity("accreditation_portal.Models.Applications.AssessmentFinding", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AssessmentAssignmentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ChecklistItemId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Findings")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<int?>("RecommendedScore")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Strengths")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("SubmittedByUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Weaknesses")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChecklistItemId");
+
+                    b.HasIndex("SubmittedByUserId");
+
+                    b.HasIndex("AssessmentAssignmentId", "ChecklistItemId")
+                        .IsUnique();
+
+                    b.ToTable("AssessmentFindings");
+                });
+
+            modelBuilder.Entity("accreditation_portal.Models.Applications.AssessmentTeamMember", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AssessmentAssignmentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("AssessorUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("AssignedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssessorUserId");
+
+                    b.HasIndex("AssessmentAssignmentId", "AssessorUserId")
+                        .IsUnique();
+
+                    b.ToTable("AssessmentTeamMembers");
                 });
 
             modelBuilder.Entity("accreditation_portal.Models.Applications.ChecklistItem", b =>
@@ -571,6 +741,9 @@ namespace accreditation_portal.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Sector")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("ApplicationId");
 
                     b.ToTable("InstituteProfiles");
@@ -614,6 +787,9 @@ namespace accreditation_portal.Migrations
 
                     b.Property<string>("ScopeOfAwarding")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Sector")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ApplicationId");
@@ -696,6 +872,82 @@ namespace accreditation_portal.Migrations
                         .IsUnique();
 
                     b.ToTable("SelfAssessmentResponses");
+                });
+
+            modelBuilder.Entity("accreditation_portal.Models.Applications.TaQecDiscussionNote", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AuthorUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int?>("ChecklistItemId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Note")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<int>("TaQecReviewId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthorUserId");
+
+                    b.HasIndex("ChecklistItemId");
+
+                    b.HasIndex("TaQecReviewId");
+
+                    b.ToTable("TaQecDiscussionNotes");
+                });
+
+            modelBuilder.Entity("accreditation_portal.Models.Applications.TaQecReview", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ApplicationId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Grade")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime?>("LockedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LockedByUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("RationaleRemarks")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicationId")
+                        .IsUnique();
+
+                    b.HasIndex("LockedByUserId");
+
+                    b.ToTable("TaQecReviews");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -787,6 +1039,90 @@ namespace accreditation_portal.Migrations
                     b.Navigation("Application");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("accreditation_portal.Models.Applications.AssessmentAssignment", b =>
+                {
+                    b.HasOne("accreditation_portal.Models.Applications.Application", "Application")
+                        .WithOne("AssessmentAssignment")
+                        .HasForeignKey("accreditation_portal.Models.Applications.AssessmentAssignment", "ApplicationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("accreditation_portal.Models.ApplicationUser", "Convener")
+                        .WithMany()
+                        .HasForeignKey("ConvenerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Application");
+
+                    b.Navigation("Convener");
+                });
+
+            modelBuilder.Entity("accreditation_portal.Models.Applications.AssessmentEvidence", b =>
+                {
+                    b.HasOne("accreditation_portal.Models.Applications.AssessmentFinding", "AssessmentFinding")
+                        .WithMany("Evidence")
+                        .HasForeignKey("AssessmentFindingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("accreditation_portal.Models.ApplicationUser", "UploadedByUser")
+                        .WithMany()
+                        .HasForeignKey("UploadedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AssessmentFinding");
+
+                    b.Navigation("UploadedByUser");
+                });
+
+            modelBuilder.Entity("accreditation_portal.Models.Applications.AssessmentFinding", b =>
+                {
+                    b.HasOne("accreditation_portal.Models.Applications.AssessmentAssignment", "AssessmentAssignment")
+                        .WithMany("Findings")
+                        .HasForeignKey("AssessmentAssignmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("accreditation_portal.Models.Applications.ChecklistItem", "ChecklistItem")
+                        .WithMany()
+                        .HasForeignKey("ChecklistItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("accreditation_portal.Models.ApplicationUser", "SubmittedByUser")
+                        .WithMany()
+                        .HasForeignKey("SubmittedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AssessmentAssignment");
+
+                    b.Navigation("ChecklistItem");
+
+                    b.Navigation("SubmittedByUser");
+                });
+
+            modelBuilder.Entity("accreditation_portal.Models.Applications.AssessmentTeamMember", b =>
+                {
+                    b.HasOne("accreditation_portal.Models.Applications.AssessmentAssignment", "AssessmentAssignment")
+                        .WithMany("TeamMembers")
+                        .HasForeignKey("AssessmentAssignmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("accreditation_portal.Models.ApplicationUser", "AssessorUser")
+                        .WithMany()
+                        .HasForeignKey("AssessorUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AssessmentAssignment");
+
+                    b.Navigation("AssessorUser");
                 });
 
             modelBuilder.Entity("accreditation_portal.Models.Applications.ChecklistItem", b =>
@@ -901,8 +1237,54 @@ namespace accreditation_portal.Migrations
                     b.Navigation("ChecklistItem");
                 });
 
+            modelBuilder.Entity("accreditation_portal.Models.Applications.TaQecDiscussionNote", b =>
+                {
+                    b.HasOne("accreditation_portal.Models.ApplicationUser", "AuthorUser")
+                        .WithMany()
+                        .HasForeignKey("AuthorUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("accreditation_portal.Models.Applications.ChecklistItem", "ChecklistItem")
+                        .WithMany()
+                        .HasForeignKey("ChecklistItemId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("accreditation_portal.Models.Applications.TaQecReview", "TaQecReview")
+                        .WithMany("DiscussionNotes")
+                        .HasForeignKey("TaQecReviewId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AuthorUser");
+
+                    b.Navigation("ChecklistItem");
+
+                    b.Navigation("TaQecReview");
+                });
+
+            modelBuilder.Entity("accreditation_portal.Models.Applications.TaQecReview", b =>
+                {
+                    b.HasOne("accreditation_portal.Models.Applications.Application", "Application")
+                        .WithOne("TaQecReview")
+                        .HasForeignKey("accreditation_portal.Models.Applications.TaQecReview", "ApplicationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("accreditation_portal.Models.ApplicationUser", "LockedByUser")
+                        .WithMany()
+                        .HasForeignKey("LockedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Application");
+
+                    b.Navigation("LockedByUser");
+                });
+
             modelBuilder.Entity("accreditation_portal.Models.Applications.Application", b =>
                 {
+                    b.Navigation("AssessmentAssignment");
+
                     b.Navigation("DeskReview");
 
                     b.Navigation("Documents");
@@ -914,6 +1296,20 @@ namespace accreditation_portal.Migrations
                     b.Navigation("QABProfile");
 
                     b.Navigation("SelfAssessmentResponses");
+
+                    b.Navigation("TaQecReview");
+                });
+
+            modelBuilder.Entity("accreditation_portal.Models.Applications.AssessmentAssignment", b =>
+                {
+                    b.Navigation("Findings");
+
+                    b.Navigation("TeamMembers");
+                });
+
+            modelBuilder.Entity("accreditation_portal.Models.Applications.AssessmentFinding", b =>
+                {
+                    b.Navigation("Evidence");
                 });
 
             modelBuilder.Entity("accreditation_portal.Models.Applications.ChecklistSection", b =>
@@ -934,6 +1330,11 @@ namespace accreditation_portal.Migrations
             modelBuilder.Entity("accreditation_portal.Models.Applications.SelfAssessmentResponse", b =>
                 {
                     b.Navigation("Evidence");
+                });
+
+            modelBuilder.Entity("accreditation_portal.Models.Applications.TaQecReview", b =>
+                {
+                    b.Navigation("DiscussionNotes");
                 });
 #pragma warning restore 612, 618
         }
