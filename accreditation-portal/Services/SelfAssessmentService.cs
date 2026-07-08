@@ -99,6 +99,8 @@ namespace accreditation_portal.Services
 
             var itemIds = items.Select(i => i.ChecklistItemId).ToList();
             var checklistItems = await _context.ChecklistItems
+                .Include(i => i.ChecklistSection)
+                    .ThenInclude(s => s.ChecklistTemplate)
                 .Where(i => itemIds.Contains(i.Id))
                 .ToDictionaryAsync(i => i.Id);
 
@@ -114,6 +116,12 @@ namespace accreditation_portal.Services
                     throw new ApplicationOperationException("One of the checklist items is no longer valid.");
                 }
 
+                var template = checklistItem.ChecklistSection.ChecklistTemplate;
+                if (template.ApplicationType != application.ApplicationType || !template.IsActive)
+                {
+                    throw new ApplicationOperationException("One of the checklist items does not belong to this application's checklist.");
+                }
+
                 if (input.Score.HasValue && (input.Score < 0 || input.Score > checklistItem.MaxScore))
                 {
                     throw new ApplicationOperationException($"Score for '{checklistItem.Title}' must be between 0 and {checklistItem.MaxScore}.");
@@ -122,34 +130,57 @@ namespace accreditation_portal.Services
 
             var now = DateTime.UtcNow;
             var scoredCount = 0;
+            var uploadedCount = 0;
 
             foreach (var input in items)
             {
                 var comments = string.IsNullOrWhiteSpace(input.Comments) ? null : input.Comments.Trim();
-                var hasContent = input.Score.HasValue || comments is not null;
+                var hasFile = input.EvidenceFile is { Length: > 0 };
+                var hasContent = input.Score.HasValue || comments is not null || hasFile;
 
-                if (existingResponses.TryGetValue(input.ChecklistItemId, out var response))
+                if (!existingResponses.TryGetValue(input.ChecklistItemId, out var response))
                 {
-                    response.Score = input.Score;
-                    response.Comments = comments;
-                    response.UpdatedAt = now;
-                }
-                else if (hasContent)
-                {
-                    _context.SelfAssessmentResponses.Add(new SelfAssessmentResponse
+                    if (!hasContent)
+                    {
+                        continue;
+                    }
+
+                    response = new SelfAssessmentResponse
                     {
                         ApplicationId = application.Id,
                         ChecklistItemId = input.ChecklistItemId,
-                        Score = input.Score,
-                        Comments = comments,
                         CreatedAt = now,
                         UpdatedAt = now
-                    });
+                    };
+                    _context.SelfAssessmentResponses.Add(response);
+                    existingResponses[input.ChecklistItemId] = response;
                 }
+
+                response.Score = input.Score;
+                response.Comments = comments;
+                response.UpdatedAt = now;
 
                 if (input.Score.HasValue)
                 {
                     scoredCount++;
+                }
+
+                if (hasFile)
+                {
+                    var stored = await _fileStorageService.SaveAsync(
+                        input.EvidenceFile!,
+                        $"applications/{application.Id}/self-assessment/{input.ChecklistItemId}");
+
+                    response.Evidence.Add(new SelfAssessmentEvidence
+                    {
+                        FileName = input.EvidenceFile!.FileName,
+                        StoredFileName = stored.StoredFileName,
+                        FilePath = stored.FilePath,
+                        FileSizeBytes = stored.FileSizeBytes,
+                        ContentType = stored.ContentType,
+                        UploadedAt = now
+                    });
+                    uploadedCount++;
                 }
             }
 
@@ -160,7 +191,8 @@ namespace accreditation_portal.Services
                 application.Id,
                 userId,
                 ApplicationLogAction.ChecklistItemScored,
-                $"Self-assessment progress saved ({scoredCount} of {items.Count} item(s) scored).",
+                $"Self-assessment progress saved ({scoredCount} of {items.Count} item(s) scored" +
+                (uploadedCount > 0 ? $", {uploadedCount} evidence file(s) uploaded" : string.Empty) + ").",
                 ipAddress);
         }
 
@@ -170,6 +202,7 @@ namespace accreditation_portal.Services
 
             var checklistItem = await _context.ChecklistItems
                 .Include(i => i.ChecklistSection)
+                    .ThenInclude(s => s.ChecklistTemplate)
                 .FirstOrDefaultAsync(i => i.Id == checklistItemId);
 
             if (checklistItem is null)
@@ -178,12 +211,8 @@ namespace accreditation_portal.Services
             }
 
             // Defense-in-depth: the item must belong to the active template for this application's type.
-            var belongsToActiveTemplate = await _context.ChecklistTemplates.AnyAsync(t =>
-                t.Id == checklistItem.ChecklistSection.ChecklistTemplateId
-                && t.ApplicationType == application.ApplicationType
-                && t.IsActive);
-
-            if (!belongsToActiveTemplate)
+            var template = checklistItem.ChecklistSection.ChecklistTemplate;
+            if (template.ApplicationType != application.ApplicationType || !template.IsActive)
             {
                 throw new ApplicationOperationException("That checklist item does not belong to this application's checklist.");
             }

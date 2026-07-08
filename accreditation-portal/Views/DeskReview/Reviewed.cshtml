@@ -1,0 +1,71 @@
+@using accreditation_portal.Models.Applications
+@model List<Application>
+@{
+    ViewData["Title"] = "Reviewed Applications";
+    var selectedDecision = (DeskReviewDecision?)ViewBag.SelectedDecision;
+    var from = (DateTime?)ViewBag.From;
+    var to = (DateTime?)ViewBag.To;
+}
+
+<h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Reviewed Applications</h1>
+
+<form method="get" class="flex flex-wrap items-end gap-4 mb-6">
+    <div>
+        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Decision</label>
+        <select name="decision" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+            <option value="">All</option>
+            <option value="@DeskReviewDecision.WorthyForVisit" selected="@(selectedDecision == DeskReviewDecision.WorthyForVisit)">Worthy for Visit</option>
+            <option value="@DeskReviewDecision.Deficient" selected="@(selectedDecision == DeskReviewDecision.Deficient)">Deficient</option>
+        </select>
+    </div>
+    <div>
+        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">From</label>
+        <input type="date" name="from" value="@from?.ToString("yyyy-MM-dd")"
+               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+    </div>
+    <div>
+        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">To</label>
+        <input type="date" name="to" value="@to?.ToString("yyyy-MM-dd")"
+               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+    </div>
+    <button type="submit" class="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
+        Filter
+    </button>
+    <a asp-controller="DeskReview" asp-action="Reviewed" class="text-sm font-medium text-primary-600 dark:text-primary-500 hover:underline">Clear</a>
+</form>
+
+<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+    <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+            <tr>
+                <th scope="col" class="px-6 py-3">Id</th>
+                <th scope="col" class="px-6 py-3">Applicant</th>
+                <th scope="col" class="px-6 py-3">Type</th>
+                <th scope="col" class="px-6 py-3">Decided</th>
+                <th scope="col" class="px-6 py-3">Decision</th>
+                <th scope="col" class="px-6 py-3"><span class="sr-only">Actions</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var application in Model)
+            {
+                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">#@application.Id</td>
+                    <td class="px-6 py-4">@application.ApplicantUser.FullName</td>
+                    <td class="px-6 py-4">@application.ApplicationType</td>
+                    <td class="px-6 py-4">@application.DeskReview?.DecidedAt?.ToLocalTime().ToString("dd MMM yyyy")</td>
+                    <td class="px-6 py-4">@await Html.PartialAsync("_StatusBadge", application.Status)</td>
+                    <td class="px-6 py-4 text-right">
+                        <a asp-controller="DeskReview" asp-action="Review" asp-route-id="@application.Id" class="font-medium text-primary-600 dark:text-primary-500 hover:underline">View</a>
+                    </td>
+                </tr>
+            }
+            @if (!Model.Any())
+            {
+                <tr class="bg-white dark:bg-gray-800">
+                    <td colspan="6" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">No reviewed applications match these filters.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

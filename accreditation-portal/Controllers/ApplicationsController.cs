@@ -16,15 +16,18 @@ namespace accreditation_portal.Controllers
     {
         private readonly IApplicationService _applicationService;
         private readonly IFileStorageService _fileStorageService;
+        private readonly IApplicationLogService _logService;
         private readonly UserManager<ApplicationUser> _userManager;
 
         public ApplicationsController(
             IApplicationService applicationService,
             IFileStorageService fileStorageService,
+            IApplicationLogService logService,
             UserManager<ApplicationUser> userManager)
         {
             _applicationService = applicationService;
             _fileStorageService = fileStorageService;
+            _logService = logService;
             _userManager = userManager;
         }
 
@@ -350,6 +353,16 @@ namespace accreditation_portal.Controllers
             if (!isOwner && !User.IsInRole(Roles.Admin))
             {
                 return Forbid();
+            }
+
+            if (!isOwner)
+            {
+                await _logService.LogAsync(
+                    document.ApplicationId,
+                    CurrentUserId,
+                    ApplicationLogAction.EvidenceViewedByReviewer,
+                    $"Reviewer viewed document '{document.FileName}'.",
+                    ClientIp);
             }
 
             var stream = _fileStorageService.OpenRead(document.FilePath);

@@ -109,6 +109,23 @@
             </ul>
         </div>
 
+        @if (Model.DeskReview is { DecidedAt: not null } deskReview)
+        {
+            <hr class="border-gray-200 dark:border-gray-700" />
+
+            <div>
+                <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-3">Desk Review Outcome</h2>
+                <div class="flex items-center gap-3 mb-2">
+                    @await Html.PartialAsync("_StatusBadge", Model.Status)
+                    <span class="text-xs text-gray-400">Decided @deskReview.DecidedAt?.ToLocalTime().ToString("dd MMM yyyy")</span>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(deskReview.OverallComments))
+                {
+                    <p class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line">@deskReview.OverallComments</p>
+                }
+            </div>
+        }
+
         @if (isDraft)
         {
             <div class="flex justify-between pt-2">

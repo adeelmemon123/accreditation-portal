@@ -34,6 +34,7 @@ namespace accreditation_portal.Services
                 .Include(a => a.InstituteProfile)
                 .Include(a => a.QABProfile)
                 .Include(a => a.Documents)
+                .Include(a => a.DeskReview)
                 .FirstOrDefaultAsync(a => a.Id == id);
 
         public Task<ApplicationDocument?> GetDocumentAsync(int documentId) =>

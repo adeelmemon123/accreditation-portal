@@ -9,25 +9,29 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace accreditation_portal.Controllers
 {
-    // Self-Assessment is the applicant's own self-report - Admin/reviewer verification is a separate
-    // Desk Review module and has no access here.
-    [Authorize(Roles = $"{Roles.Institute},{Roles.QAB}")]
+    // Self-Assessment is the applicant's own self-report - Admin is only included so the Evidence action
+    // below can stream a file for Desk Review verification; GetOwnedApplicationAsync's strict ownership
+    // check still blocks Admin from every other (mutating) action here, same pattern as ApplicationsController.
+    [Authorize(Roles = $"{Roles.Institute},{Roles.QAB},{Roles.Admin}")]
     public class SelfAssessmentController : Controller
     {
         private readonly IApplicationService _applicationService;
         private readonly ISelfAssessmentService _selfAssessmentService;
         private readonly IFileStorageService _fileStorageService;
+        private readonly IApplicationLogService _logService;
         private readonly UserManager<ApplicationUser> _userManager;
 
         public SelfAssessmentController(
             IApplicationService applicationService,
             ISelfAssessmentService selfAssessmentService,
             IFileStorageService fileStorageService,
+            IApplicationLogService logService,
             UserManager<ApplicationUser> userManager)
         {
             _applicationService = applicationService;
             _selfAssessmentService = selfAssessmentService;
             _fileStorageService = fileStorageService;
+            _logService = logService;
             _userManager = userManager;
         }
 
@@ -199,9 +203,20 @@ namespace accreditation_portal.Controllers
                 return NotFound();
             }
 
-            if (evidence.SelfAssessmentResponse.Application.ApplicantUserId != CurrentUserId)
+            var isOwner = evidence.SelfAssessmentResponse.Application.ApplicantUserId == CurrentUserId;
+            if (!isOwner && !User.IsInRole(Roles.Admin))
             {
                 return Forbid();
+            }
+
+            if (!isOwner)
+            {
+                await _logService.LogAsync(
+                    evidence.SelfAssessmentResponse.ApplicationId,
+                    CurrentUserId,
+                    ApplicationLogAction.EvidenceViewedByReviewer,
+                    $"Reviewer viewed evidence file '{evidence.FileName}'.",
+                    ClientIp);
             }
 
             var stream = _fileStorageService.OpenRead(evidence.FilePath);

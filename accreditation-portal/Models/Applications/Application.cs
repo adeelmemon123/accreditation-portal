@@ -19,5 +19,6 @@ namespace accreditation_portal.Models.Applications
         public ICollection<ApplicationDocument> Documents { get; set; } = new List<ApplicationDocument>();
         public ICollection<ApplicationLog> Logs { get; set; } = new List<ApplicationLog>();
         public ICollection<SelfAssessmentResponse> SelfAssessmentResponses { get; set; } = new List<SelfAssessmentResponse>();
+        public DeskReview? DeskReview { get; set; }
     }
 }

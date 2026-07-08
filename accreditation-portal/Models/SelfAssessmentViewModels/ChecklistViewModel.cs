@@ -52,5 +52,6 @@ namespace accreditation_portal.Models.SelfAssessmentViewModels
         public int ChecklistItemId { get; set; }
         public int? Score { get; set; }
         public string? Comments { get; set; }
+        public IFormFile? EvidenceFile { get; set; }
     }
 }

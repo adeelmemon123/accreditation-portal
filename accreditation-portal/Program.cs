@@ -17,6 +17,7 @@ builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
 builder.Services.AddScoped<IApplicationLogService, ApplicationLogService>();
 builder.Services.AddScoped<IApplicationService, ApplicationService>();
 builder.Services.AddScoped<ISelfAssessmentService, SelfAssessmentService>();
+builder.Services.AddScoped<IDeskReviewService, DeskReviewService>();
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     {

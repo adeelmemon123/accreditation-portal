@@ -22,6 +22,8 @@ namespace accreditation_portal.Data
         public DbSet<ChecklistItem> ChecklistItems => Set<ChecklistItem>();
         public DbSet<SelfAssessmentResponse> SelfAssessmentResponses => Set<SelfAssessmentResponse>();
         public DbSet<SelfAssessmentEvidence> SelfAssessmentEvidence => Set<SelfAssessmentEvidence>();
+        public DbSet<DeskReview> DeskReviews => Set<DeskReview>();
+        public DbSet<DeskReviewItemComment> DeskReviewItemComments => Set<DeskReviewItemComment>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

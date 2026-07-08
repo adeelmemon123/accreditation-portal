@@ -27,7 +27,7 @@
             <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
                 <div>
                     <h1 class="text-xl font-bold text-gray-900 dark:text-white mb-1">@Model.TemplateName</h1>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">Application #@Model.ApplicationId &middot; Score yourself against each item and attach evidence where required.</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Application #@Model.ApplicationId &middot; Score yourself against each item and attach evidence where required, then click Save Progress.</p>
                 </div>
                 <div class="text-right">
                     <p class="text-sm font-semibold text-gray-900 dark:text-white">@Model.CompletedItems of @Model.TotalItems items scored</p>
@@ -38,107 +38,117 @@
             </div>
         </div>
 
-        <form id="scoreForm" asp-controller="SelfAssessment" asp-action="SaveProgress" asp-route-id="@Model.ApplicationId" method="post"></form>
+        @* Scores, comments, AND evidence files all post together via this one form - splitting evidence
+           upload into a separate form/POST would reload the page and discard any score just picked
+           before it was saved. Delete-evidence buttons below intentionally target separate forms
+           (declared after this one closes) since a <form> cannot nest inside another <form>. *@
+        <form id="scoreForm" asp-controller="SelfAssessment" asp-action="SaveProgress" asp-route-id="@Model.ApplicationId" method="post" enctype="multipart/form-data" class="space-y-6">
+
+            @foreach (var checklistSection in Model.Sections)
+            {
+                <div class="bg-white rounded-lg shadow dark:border sm:p-8 p-6 dark:bg-gray-800 dark:border-gray-700 space-y-6">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">@checklistSection.Title</h2>
+
+                    @foreach (var item in checklistSection.Items)
+                    {
+                        var idx = globalIndex;
+                        globalIndex++;
+
+                        <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-3">
+                            <input type="hidden" name="Items[@idx].ChecklistItemId" value="@item.ChecklistItemId" />
+
+                            <div>
+                                <p class="text-sm font-semibold text-gray-900 dark:text-white">
+                                    @item.Title
+                                    @if (item.IsEvidenceRequired)
+                                    {
+                                        <span class="text-red-600">*</span>
+                                    }
+                                </p>
+                                @if (!string.IsNullOrWhiteSpace(item.Description))
+                                {
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">@item.Description</p>
+                                }
+                            </div>
+
+                            <div>
+                                <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Self-rating (0&ndash;@item.MaxScore)</p>
+                                <div class="flex flex-wrap gap-2">
+                                    @for (var score = 0; score <= item.MaxScore; score++)
+                                    {
+                                        var inputId = $"score-{item.ChecklistItemId}-{score}";
+                                        <label for="@inputId" class="cursor-pointer">
+                                            <input type="radio" id="@inputId" name="Items[@idx].Score" value="@score"
+                                                   class="sr-only peer" checked="@(item.Score == score)" />
+                                            <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg border text-sm font-medium border-gray-300 text-gray-700 dark:border-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 peer-checked:bg-primary-600 peer-checked:text-white peer-checked:border-primary-600">
+                                                @score
+                                            </span>
+                                        </label>
+                                    }
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="comments-@item.ChecklistItemId" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Comments (optional)</label>
+                                <textarea id="comments-@item.ChecklistItemId" name="Items[@idx].Comments" maxlength="2000" rows="2"
+                                          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">@item.Comments</textarea>
+                            </div>
+
+                            @if (item.IsEvidenceRequired)
+                            {
+                                <div class="pt-2 border-t border-gray-100 dark:border-gray-700">
+                                    <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Evidence <span class="text-red-600">*</span> required</p>
+
+                                    @if (item.Evidence.Any())
+                                    {
+                                        <ul class="space-y-1 mb-2">
+                                            @foreach (var ev in item.Evidence)
+                                            {
+                                                <li class="flex items-center justify-between text-sm bg-gray-50 dark:bg-gray-700/40 rounded px-3 py-1.5">
+                                                    <a asp-controller="SelfAssessment" asp-action="Evidence" asp-route-evidenceId="@ev.Id" target="_blank" class="text-primary-600 dark:text-primary-500 hover:underline truncate">
+                                                        @ev.FileName
+                                                    </a>
+                                                    <span class="text-xs text-gray-400 mx-2 shrink-0">@((ev.FileSizeBytes / 1024.0).ToString("N0")) KB</span>
+                                                    <button type="submit" form="delete-evidence-@ev.Id" onclick="return confirm('Remove this evidence file?');" class="text-xs font-medium text-red-600 hover:underline shrink-0">Remove</button>
+                                                </li>
+                                            }
+                                        </ul>
+                                    }
+
+                                    <input type="file" name="Items[@idx].EvidenceFile" accept=".pdf,.jpg,.jpeg,.png"
+                                           class="block w-full text-xs text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600" />
+                                    <p class="text-xs text-gray-400 mt-1">Choose a file, then click Save Progress below to upload it.</p>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+
+            <div class="flex items-center justify-between bg-white rounded-lg shadow dark:border sm:p-6 p-4 dark:bg-gray-800 dark:border-gray-700">
+                <a asp-controller="Applications" asp-action="Index" class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:underline">&larr; Back to My Applications</a>
+                <div class="flex items-center gap-3">
+                    <button type="submit" class="text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-gray-600 dark:hover:bg-gray-500">
+                        Save Progress
+                    </button>
+                    <a asp-controller="SelfAssessment" asp-action="Review" asp-route-id="@Model.ApplicationId" class="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
+                        Review &amp; Submit
+                    </a>
+                </div>
+            </div>
+        </form>
 
         @foreach (var checklistSection in Model.Sections)
         {
-            <div class="bg-white rounded-lg shadow dark:border sm:p-8 p-6 dark:bg-gray-800 dark:border-gray-700 space-y-6">
-                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">@checklistSection.Title</h2>
-
-                @foreach (var item in checklistSection.Items)
+            @foreach (var item in checklistSection.Items)
+            {
+                @foreach (var ev in item.Evidence)
                 {
-                    var idx = globalIndex;
-                    globalIndex++;
-
-                    <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-3">
-                        <input type="hidden" form="scoreForm" name="Items[@idx].ChecklistItemId" value="@item.ChecklistItemId" />
-
-                        <div>
-                            <p class="text-sm font-semibold text-gray-900 dark:text-white">
-                                @item.Title
-                                @if (item.IsEvidenceRequired)
-                                {
-                                    <span class="text-red-600">*</span>
-                                }
-                            </p>
-                            @if (!string.IsNullOrWhiteSpace(item.Description))
-                            {
-                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">@item.Description</p>
-                            }
-                        </div>
-
-                        <div>
-                            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Self-rating (0&ndash;@item.MaxScore)</p>
-                            <div class="flex flex-wrap gap-2">
-                                @for (var score = 0; score <= item.MaxScore; score++)
-                                {
-                                    var inputId = $"score-{item.ChecklistItemId}-{score}";
-                                    <label for="@inputId" class="cursor-pointer">
-                                        <input type="radio" id="@inputId" form="scoreForm" name="Items[@idx].Score" value="@score"
-                                               class="sr-only peer" checked="@(item.Score == score)" />
-                                        <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg border text-sm font-medium border-gray-300 text-gray-700 dark:border-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 peer-checked:bg-primary-600 peer-checked:text-white peer-checked:border-primary-600">
-                                            @score
-                                        </span>
-                                    </label>
-                                }
-                            </div>
-                        </div>
-
-                        <div>
-                            <label for="comments-@item.ChecklistItemId" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Comments (optional)</label>
-                            <textarea id="comments-@item.ChecklistItemId" form="scoreForm" name="Items[@idx].Comments" maxlength="2000" rows="2"
-                                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">@item.Comments</textarea>
-                        </div>
-
-                        @if (item.IsEvidenceRequired)
-                        {
-                            <div class="pt-2 border-t border-gray-100 dark:border-gray-700">
-                                <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Evidence <span class="text-red-600">*</span> required</p>
-
-                                @if (item.Evidence.Any())
-                                {
-                                    <ul class="space-y-1 mb-2">
-                                        @foreach (var ev in item.Evidence)
-                                        {
-                                            <li class="flex items-center justify-between text-sm bg-gray-50 dark:bg-gray-700/40 rounded px-3 py-1.5">
-                                                <a asp-controller="SelfAssessment" asp-action="Evidence" asp-route-evidenceId="@ev.Id" target="_blank" class="text-primary-600 dark:text-primary-500 hover:underline truncate">
-                                                    @ev.FileName
-                                                </a>
-                                                <span class="text-xs text-gray-400 mx-2 shrink-0">@((ev.FileSizeBytes / 1024.0).ToString("N0")) KB</span>
-                                                <form asp-controller="SelfAssessment" asp-action="DeleteEvidence" asp-route-id="@Model.ApplicationId" method="post" onsubmit="return confirm('Remove this evidence file?');" class="shrink-0">
-                                                    <input type="hidden" name="evidenceId" value="@ev.Id" />
-                                                    <button type="submit" class="text-xs font-medium text-red-600 hover:underline">Remove</button>
-                                                </form>
-                                            </li>
-                                        }
-                                    </ul>
-                                }
-
-                                <form asp-controller="SelfAssessment" asp-action="UploadEvidence" asp-route-id="@Model.ApplicationId" method="post" enctype="multipart/form-data" class="flex items-center gap-2">
-                                    <input type="hidden" name="checklistItemId" value="@item.ChecklistItemId" />
-                                    <input type="file" name="file" accept=".pdf,.jpg,.jpeg,.png" required
-                                           class="block w-full text-xs text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600" />
-                                    <button type="submit" class="shrink-0 text-white bg-gray-700 hover:bg-gray-800 font-medium rounded-lg text-xs px-3 py-2 dark:bg-gray-600 dark:hover:bg-gray-500">
-                                        Upload
-                                    </button>
-                                </form>
-                            </div>
-                        }
-                    </div>
+                    <form id="delete-evidence-@ev.Id" asp-controller="SelfAssessment" asp-action="DeleteEvidence" asp-route-id="@Model.ApplicationId" method="post" class="hidden">
+                        <input type="hidden" name="evidenceId" value="@ev.Id" />
+                    </form>
                 }
-            </div>
+            }
         }
-
-        <div class="flex items-center justify-between bg-white rounded-lg shadow dark:border sm:p-6 p-4 dark:bg-gray-800 dark:border-gray-700">
-            <a asp-controller="Applications" asp-action="Index" class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:underline">&larr; Back to My Applications</a>
-            <div class="flex items-center gap-3">
-                <button type="submit" form="scoreForm" class="text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-gray-600 dark:hover:bg-gray-500">
-                    Save Progress
-                </button>
-                <a asp-controller="SelfAssessment" asp-action="Review" asp-route-id="@Model.ApplicationId" class="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
-                    Review &amp; Submit
-                </a>
-            </div>
-        </div>
     }
 </div>

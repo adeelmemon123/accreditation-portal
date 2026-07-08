@@ -59,3 +59,38 @@ dotnet ef database update
 
 The seeder runs automatically on next app startup (via `Program.cs`, right after `SeedData`) - no
 separate command needed.
+
+## Desk Review module (Step 3)
+
+Migration `AddDeskReviewSchema` adds `DeskReviews` (one-to-one with `Applications`) and
+`DeskReviewItemComments`. `UnderDeskReview`, `WorthyForVisit`, and `Deficient` were already present
+in `ApplicationStatus` as placeholders from Step 1 - this module is what actually transitions an
+application into and out of them:
+`SelfAssessmentSubmitted -> UnderDeskReview -> (WorthyForVisit | Deficient)`. No existing
+table/column was changed.
+
+This is **Admin-only, read-only verification** of the applicant's Step 2 self-assessment - reviewers
+never edit `SelfAssessmentResponse`/`SelfAssessmentEvidence`, they only add their own
+`DeskReviewItemComment` notes/flags layered on top, plus one overall decision. A decision requires
+`OverallComments` and is final once made (no reopen/reverse through the UI - see `CLAUDE.md`/code
+comments if that's ever needed as a manual DB fix). Admin reaches it via the sidebar:
+**Desk Review Queue** (`/DeskReview/Queue`, oldest-first) and **Reviewed Applications**
+(`/DeskReview/Reviewed`, filterable by decision/date).
+
+Since a reviewer needs to read the applicant's Step 2 evidence, `SelfAssessmentController.Evidence`
+now also allows `Admin` (in addition to the owning applicant) - mirroring the bypass
+`ApplicationsController.Document` already had for Step 1 documents. Every non-owner view of either
+is now audit-logged (`EvidenceViewedByReviewer`) since it's sensitive applicant data. No other
+action on `SelfAssessmentController` accepts Admin - its per-request ownership check still 404s for
+anyone who isn't the applicant.
+
+Institute/QAB see the reviewer's `OverallComments` (and the Worthy for Visit/Deficient badge) on
+their own `Applications/Review` page once decided - they do **not** see per-item
+`DeskReviewItemComment` notes/flags, which stay internal to Admin.
+
+Run the new migration the same way as any other:
+
+```
+cd accreditation-portal
+dotnet ef database update
+```

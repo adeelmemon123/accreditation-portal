@@ -1,0 +1,57 @@
+@using accreditation_portal.Models.Applications
+@model List<Application>
+@{
+    ViewData["Title"] = "Desk Review Queue";
+}
+
+@if (TempData["Error"] is string error)
+{
+    <div class="mb-4 p-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400">@error</div>
+}
+
+<h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Desk Review Queue</h1>
+<p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Applications with a submitted self-assessment, sorted oldest-first.</p>
+
+<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+    <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+            <tr>
+                <th scope="col" class="px-6 py-3">Id</th>
+                <th scope="col" class="px-6 py-3">Applicant</th>
+                <th scope="col" class="px-6 py-3">Type</th>
+                <th scope="col" class="px-6 py-3">Province</th>
+                <th scope="col" class="px-6 py-3">Waiting</th>
+                <th scope="col" class="px-6 py-3">Status</th>
+                <th scope="col" class="px-6 py-3"><span class="sr-only">Actions</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var application in Model)
+            {
+                var province = application.ApplicationType == ApplicationType.Institute
+                    ? application.InstituteProfile?.Province
+                    : application.QABProfile?.Province;
+                var waiting = DateTime.UtcNow - application.UpdatedAt;
+                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">#@application.Id</td>
+                    <td class="px-6 py-4">@application.ApplicantUser.FullName</td>
+                    <td class="px-6 py-4">@application.ApplicationType</td>
+                    <td class="px-6 py-4">@(province ?? "-")</td>
+                    <td class="px-6 py-4">@(waiting.TotalDays >= 1 ? $"{(int)waiting.TotalDays}d" : $"{(int)waiting.TotalHours}h")</td>
+                    <td class="px-6 py-4">@await Html.PartialAsync("_StatusBadge", application.Status)</td>
+                    <td class="px-6 py-4 text-right">
+                        <a asp-controller="DeskReview" asp-action="Review" asp-route-id="@application.Id" class="font-medium text-primary-600 dark:text-primary-500 hover:underline">
+                            @(application.Status == ApplicationStatus.UnderDeskReview ? "Continue Review" : "Start Review")
+                        </a>
+                    </td>
+                </tr>
+            }
+            @if (!Model.Any())
+            {
+                <tr class="bg-white dark:bg-gray-800">
+                    <td colspan="7" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">Nothing waiting for desk review.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
